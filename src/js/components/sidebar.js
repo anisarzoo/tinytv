@@ -53,12 +53,13 @@ export function initSidebar() {
 function initSwipeGesture() {
   const swipeTarget = document.body;
   const videoContainer = document.getElementById('videoContainer');
+  const sidebar = document.getElementById('sidebar');
 
   if (!swipeTarget) return;
 
-  const edgeLimit = 80;          // px from left edge
-  const swipeThreshold = 40;     // min horizontal distance
-  const verticalThreshold = 50;  // max vertical drift
+  const edgeLimit = 80;          // px from left edge to OPEN
+  const swipeThreshold = 50;     // min distance to toggle
+  const verticalThreshold = 60;  // max vertical drift
 
   let startX = 0;
   let startY = 0;
@@ -67,7 +68,7 @@ function initSwipeGesture() {
   swipeTarget.addEventListener(
     'touchstart',
     (e) => {
-      // Ignore if touch started inside video player
+      // Ignore if touch started inside video player (important for seeker/volume)
       if (videoContainer && videoContainer.contains(e.target)) return;
 
       startX = e.touches[0].clientX;
@@ -81,8 +82,6 @@ function initSwipeGesture() {
     'touchmove',
     (e) => {
       if (!isSwiping || !e.touches.length) return;
-
-      // Ignore moves inside player
       if (videoContainer && videoContainer.contains(e.target)) return;
 
       const currentX = e.touches[0].clientX;
@@ -90,12 +89,23 @@ function initSwipeGesture() {
       const deltaX = currentX - startX;
       const deltaY = Math.abs(currentY - startY);
 
-      // Only act on mostly horizontal swipe, starting near left edge
-      if (deltaY < Math.abs(deltaX) && deltaX > 0 && startX < edgeLimit) {
+      // Only act on mostly horizontal swipe
+      if (deltaY > Math.abs(deltaX)) return;
+
+      const isOpen = sidebar && sidebar.classList.contains('open');
+
+      if (!isOpen && deltaX > 0 && startX < edgeLimit) {
+        // OPENING FEEDBACK: subtle push on content
         const progress = Math.min(deltaX / 100, 1);
         const content = document.querySelector('.content');
         if (content) {
           content.style.transform = `translateX(${progress * 30}px)`;
+        }
+      } else if (isOpen && deltaX < 0) {
+        // CLOSING FEEDBACK: slide sidebar back slightly
+        const progress = Math.min(Math.abs(deltaX) / 100, 1);
+        if (sidebar) {
+          sidebar.style.transform = `translateX(-${progress * 20}%)`;
         }
       }
     },
@@ -107,25 +117,25 @@ function initSwipeGesture() {
     (e) => {
       if (!isSwiping) return;
 
-      // Ignore if touch ended inside player
-      if (videoContainer && videoContainer.contains(e.target)) {
-        isSwiping = false;
-        return;
-      }
-
       const endX = e.changedTouches[0].clientX;
       const endY = e.changedTouches[0].clientY;
       const deltaX = endX - startX;
       const deltaY = Math.abs(endY - startY);
 
+      const isOpen = sidebar && sidebar.classList.contains('open');
       const content = document.querySelector('.content');
-      if (content) {
-        content.style.transform = '';
-      }
 
-      // Valid left-to-right swipe from left edge
-      if (deltaX > swipeThreshold && deltaY < verticalThreshold && startX < edgeLimit) {
-        openSidebar();
+      // RESET STYLES
+      if (content) content.style.transform = '';
+      if (sidebar) sidebar.style.transform = '';
+
+      // CHECK TRIGGER
+      if (deltaY < verticalThreshold) {
+        if (!isOpen && deltaX > swipeThreshold && startX < edgeLimit) {
+          openSidebar();
+        } else if (isOpen && deltaX < -swipeThreshold) {
+          closeSidebar();
+        }
       }
 
       isSwiping = false;

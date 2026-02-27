@@ -99,7 +99,7 @@ export function loadStream(channel) {
         liveMaxLatencyDurationCount: 5,   // Was 10
 
         // NETWORK OPTIMIZATION
-        xhrSetup: function(xhr, url) {
+        xhrSetup: function (xhr, url) {
           xhr.timeout = 8000; // 8s timeout for fast failure
         }
       });
@@ -134,7 +134,7 @@ export function loadStream(channel) {
       hls.on(Hls.Events.ERROR, (event, data) => {
         if (data.fatal) {
           hideLoading();
-          switch(data.type) {
+          switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
               console.error('Network error, trying to recover...');
               // Don't auto-retry - fail fast for channel switching

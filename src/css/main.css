@@ -13,26 +13,35 @@
     --secondary: #1e293b;
     --accent: #334155;
     --highlight: #f43f5e;
+    --highlight-soft: rgba(244, 63, 94, 0.15);
     --text: #f8fafc;
     --text-dim: #94a3b8;
     --bg: #020617;
     --card-bg: #1e293b;
-    --border: #334155;
+    --border: rgba(148, 163, 184, 0.1);
+    --border-hover: rgba(148, 163, 184, 0.25);
     --success: #10b981;
     --warning: #f59e0b;
-    --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --glass: rgba(30, 41, 59, 0.7);
+    --gradient: linear-gradient(135deg, #f43f5e 0%, #ec4899 100%);
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body.light {
     --primary: #ffffff;
     --secondary: #f8fafc;
-    --accent: #e2e8f0;
+    --accent: #f1f5f9;
     --highlight: #f43f5e;
+    --highlight-soft: rgba(244, 63, 94, 0.1);
     --text: #0f172a;
     --text-dim: #64748b;
-    --bg: #f1f5f9;
+    --bg: #f8fafc;
     --card-bg: #ffffff;
-    --border: #e2e8f0;
+    --border: rgba(0, 0, 0, 0.05);
+    --border-hover: rgba(0, 0, 0, 0.1);
+    --glass: rgba(255, 255, 255, 0.8);
 }
 
 /* GLOBAL */
@@ -281,7 +290,7 @@ body {
     gap: 0.5rem;
     font-size: 0.9rem;
     font-weight: 500;
-    transition: all 0.2s ease;
+    transition: var(--transition);
 }
 
 .header-btn:hover {
@@ -439,7 +448,7 @@ body.light .sun-icon {
     cursor: pointer;
     font-size: 1rem;
     font-weight: 500;
-    transition: all 0.2s ease;
+    transition: var(--transition);
 }
 
 .quality-option:hover {
@@ -479,7 +488,7 @@ body.light .sun-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
+    transition: var(--transition);
 }
 
 .close-btn:hover {
@@ -578,8 +587,14 @@ body.light .sun-icon {
 }
 
 .channel-tag.quality {
-    background: rgba(244, 63, 94, 0.18);
-    color: #fecaca;
+    background: var(--highlight-soft);
+    color: var(--highlight);
+    font-weight: 700;
+}
+
+body.light .channel-tag.quality {
+    color: #e11d48;
+    /* Slightly darker pink for better contrast on light */
 }
 
 /* HEART – Instagram-style, right side, centered */
@@ -602,7 +617,6 @@ body.light .sun-icon {
     width: 15px;
     height: 15px;
     fill: transparent;
-    transform: translate(-1px, 0.5px);
     transition: transform 0.18s ease, fill 0.18s ease;
 }
 

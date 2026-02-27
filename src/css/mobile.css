@@ -152,7 +152,7 @@
     }
 
     .favorites-grid::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.2);
+        background: var(--border-hover);
         border-radius: 2px;
     }
 
@@ -169,7 +169,7 @@
         border-radius: 12px;
         border: 1px solid var(--border);
         cursor: pointer;
-        transition: all 0.18s ease;
+        transition: var(--transition);
     }
 
     .favorite-card:active {
@@ -250,9 +250,9 @@
     }
 
     .favorite-card .channel-fav.fav-active {
-        background: rgba(24, 24, 27, 0.96);
-        border-color: rgba(248, 113, 113, 0.9);
-        box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.3);
+        background: var(--glass);
+        border-color: var(--highlight);
+        box-shadow: 0 0 0 2px var(--highlight-soft);
     }
 
     .favorite-card .channel-fav.fav-active .fav-icon {
@@ -298,7 +298,7 @@
 
     .sidebar-channel.active {
         border-color: var(--highlight);
-        background: linear-gradient(135deg, rgba(244, 63, 94, 0.1), rgba(236, 72, 153, 0.05));
+        background: var(--highlight-soft);
     }
 
     .sidebar-channel .channel-icon {
@@ -359,9 +359,14 @@
         font-size: 0.72rem;
         padding: 0.2rem 0.5rem;
         border-radius: 999px;
-        background: rgba(244, 63, 94, 0.18);
-        color: #fecaca;
+        background: var(--highlight-soft);
+        color: var(--highlight);
+        font-weight: 700;
         flex-shrink: 0;
+    }
+
+    body.light .sidebar-channel .quality {
+        color: #e11d48;
     }
 
     .sidebar-channel .channel-fav,

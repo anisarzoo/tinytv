@@ -12,9 +12,10 @@
         display: flex;
         flex-direction: column;
         background: var(--secondary);
-        border-radius: 16px;
+        border-radius: 20px;
         border: 1px solid var(--border);
         overflow: hidden;
+        box-shadow: var(--shadow-md);
     }
 
     /* Search bar at top */
@@ -245,20 +246,21 @@
         display: flex;
         gap: 0.85rem;
         padding: 0.85rem;
-        padding-right: 0.3rem; /* EVEN TIGHTER - reduced from 0.5rem */
+        padding-right: 0.3rem;
         background: var(--card-bg);
-        border: 2px solid transparent;
-        border-radius: 12px;
+        border: 1px solid var(--border);
+        border-radius: 14px;
         cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: var(--transition);
         position: relative;
-        animation: fadeIn 0.3s ease;
+        animation: fadeIn 0.35s ease-out;
     }
 
     .channel-card:hover {
         border-color: var(--highlight);
-        transform: translateX(6px);
-        box-shadow: 0 8px 24px rgba(244, 63, 94, 0.2);
+        transform: translateY(-2px);
+        background: var(--accent);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
     }
 
     .channel-card.active {
@@ -293,7 +295,8 @@
         gap: 0.5rem;
         min-width: 0;
         padding-right: 0;
-        max-width: calc(100% - 110px); /* LIMIT WIDTH - prevent overlap with heart */
+        max-width: calc(100% - 110px);
+        /* LIMIT WIDTH - prevent overlap with heart */
     }
 
     .channel-name {
@@ -326,13 +329,13 @@
     }
 
     .quality-badge {
-        background: linear-gradient(135deg, var(--highlight), #ec4899);
+        background: var(--gradient);
         color: white;
         padding: 0.25rem 0.6rem;
         border-radius: 6px;
         font-size: 0.75rem;
         font-weight: 700;
-        box-shadow: 0 2px 8px rgba(244, 63, 94, 0.3);
+        box-shadow: 0 2px 8px rgba(244, 63, 94, 0.25);
     }
 
     .offline-badge {
@@ -348,23 +351,22 @@
     .channel-card .channel-fav {
         position: absolute;
         top: 50%;
-        right: 0.2rem; /* MOVED EVEN CLOSER - from 0.3rem */
+        right: 0.5rem;
         transform: translateY(-50%);
-        width: 32px;
-        height: 32px;
-        min-width: 32px;
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
         border-radius: 50%;
-        border: 2px solid rgba(148, 163, 184, 0.5);
-        background: rgba(15, 23, 42, 0.96);
+        border: 1px solid var(--border);
+        background: var(--glass);
+        backdrop-filter: blur(8px);
         display: flex !important;
         align-items: center;
         justify-content: center;
         cursor: pointer;
         padding: 0;
-        transition: all 0.18s ease;
+        transition: var(--transition);
         z-index: 100;
-        opacity: 1;
-        visibility: visible;
     }
 
     .channel-card .channel-fav .fav-icon {
@@ -422,9 +424,12 @@
         border: 1px solid var(--border);
 
         /* FIXED: Match left panel height */
-        flex: 1; /* Take remaining space */
-        min-height: 0; /* Allow flexbox shrinking */
-        overflow: hidden; /* Prevent overflow */
+        flex: 1;
+        /* Take remaining space */
+        min-height: 0;
+        /* Allow flexbox shrinking */
+        overflow: hidden;
+        /* Prevent overflow */
     }
 
     .favorites-header {
@@ -461,10 +466,13 @@
         gap: 0.75rem;
 
         /* FIXED: Grid fills container and scrolls */
-        flex: 1; /* Take remaining space after header */
-        overflow-y: auto; /* Enable scroll */
+        flex: 1;
+        /* Take remaining space after header */
+        overflow-y: auto;
+        /* Enable scroll */
         padding-right: 0.5rem;
-        align-content: start; /* Align items to top */
+        align-content: start;
+        /* Align items to top */
     }
 
     .favorites-grid::-webkit-scrollbar {
@@ -491,16 +499,17 @@
         gap: 0.6rem;
         padding: 0.65rem 0.75rem;
         background: var(--card-bg);
-        border-radius: 12px;
-        border: 2px solid transparent;
+        border-radius: 14px;
+        border: 1px solid var(--border);
         cursor: pointer;
-        transition: all 0.18s ease;
+        transition: var(--transition);
     }
 
     .favorite-card:hover {
         border-color: var(--highlight);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(244, 63, 94, 0.2);
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+        background: var(--accent);
     }
 
     .favorite-card.active {
@@ -608,8 +617,10 @@
         display: none !important;
     }
 }
+
 /* 🔥 COMPLETE desktop.css - PERFECT 2x2 + Toggle Hover FIXED */
 @media (min-width: 768px) {
+
     /* 2x2 FILTERS LAYOUT */
     .desktop-filters-content.open {
         display: grid !important;
@@ -617,20 +628,20 @@
         gap: 0.75rem !important;
         padding: 1rem !important;
     }
-    
+
     /* TOGGLES + STATS = FULL WIDTH */
-    .desktop-filter-toggles, 
+    .desktop-filter-toggles,
     .desktop-stats {
         grid-column: 1 / -1 !important;
     }
-    
+
     /* 2 TOGGLE BUTTONS SIDE-BY-SIDE */
     .desktop-filter-toggles {
         display: grid !important;
         grid-template-columns: 1fr 1fr !important;
         gap: 0.75rem !important;
     }
-    
+
     /* FIXED: Toggle Hover - OPPOSITE SIDES */
     .desktop-toggle-option:hover {
         background: linear-gradient(135deg, var(--highlight), #ec4899) !important;
@@ -638,7 +649,7 @@
         transform: translateX(4px) !important;
         box-shadow: 0 4px 12px rgba(244, 63, 94, 0.4) !important;
     }
-    
+
     /* Toggle Active State */
     .desktop-toggle-option.active {
         background: linear-gradient(135deg, var(--highlight), #ec4899) !important;
