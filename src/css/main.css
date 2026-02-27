@@ -9,24 +9,24 @@
 
 /* THEME VARIABLES */
 :root {
-    --primary: #0f172a;
-    --secondary: #1e293b;
-    --accent: #334155;
+    --primary: #0a0a0c;
+    --secondary: #121216;
+    --accent: #1e1e26;
     --highlight: #f43f5e;
-    --highlight-soft: rgba(244, 63, 94, 0.15);
-    --text: #f8fafc;
+    --highlight-soft: rgba(244, 63, 94, 0.2);
+    --text: #ffffff;
     --text-dim: #94a3b8;
-    --bg: #020617;
-    --card-bg: #1e293b;
-    --border: rgba(148, 163, 184, 0.1);
-    --border-hover: rgba(148, 163, 184, 0.25);
+    --bg: #050507;
+    --card-bg: #121216;
+    --border: rgba(255, 255, 255, 0.04);
+    --border-hover: rgba(255, 255, 255, 0.08);
     --success: #10b981;
     --warning: #f59e0b;
-    --glass: rgba(30, 41, 59, 0.7);
+    --glass: rgba(10, 10, 12, 0.7);
     --gradient: linear-gradient(135deg, #f43f5e 0%, #ec4899 100%);
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.6);
+    --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body.light {
@@ -195,6 +195,7 @@ body {
     letter-spacing: -2px;
     background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.7) 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
 }
@@ -268,14 +269,29 @@ body {
     letter-spacing: -0.5px;
     background: linear-gradient(135deg, var(--highlight), #ec4899);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
 
 .header-actions {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.75rem;
     align-items: center;
+}
+
+#menuBtn {
+    background: var(--accent);
+    border: none;
+    color: var(--text);
+    padding: 0.6rem;
+    border-radius: 12px;
+    transition: var(--transition);
+}
+
+#menuBtn:hover {
+    background: var(--border-hover);
+    transform: none;
 }
 
 .header-btn {

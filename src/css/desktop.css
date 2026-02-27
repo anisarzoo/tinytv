@@ -11,7 +11,7 @@
         flex: 0 0 420px;
         display: flex;
         flex-direction: column;
-        background: var(--secondary);
+        background: var(--bg);
         border-radius: 20px;
         border: 1px solid var(--border);
         overflow: hidden;
@@ -419,8 +419,8 @@
         display: flex;
         flex-direction: column;
         padding: 1rem 1.25rem;
-        background: var(--secondary);
-        border-radius: 16px;
+        background: var(--primary);
+        border-radius: 20px;
         border: 1px solid var(--border);
 
         /* FIXED: Match left panel height */
@@ -430,6 +430,7 @@
         /* Allow flexbox shrinking */
         overflow: hidden;
         /* Prevent overflow */
+        box-shadow: var(--shadow-md);
     }
 
     .favorites-header {
