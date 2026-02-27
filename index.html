@@ -8,11 +8,11 @@
 
     <!-- Preload critical resources -->
     <link rel="preload" href="src/css/main.css" as="style">
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/hls.js@1" as="script">
-    <link rel="modulepreload" href="src/js/main.js">
-    <link rel="modulepreload" href="src/js/app.js">
-    <link rel="modulepreload" href="src/js/components/player.js">
-    <link rel="modulepreload" href="src/js/components/channelgrid.js">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/hls.js@1" as="script" crossorigin>
+    <link rel="modulepreload" href="./src/js/main.js">
+    <link rel="modulepreload" href="./src/js/app.js">
+    <link rel="modulepreload" href="./src/js/components/player.js">
+    <link rel="modulepreload" href="./src/js/components/channelgrid.js">
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -717,8 +717,8 @@
     </div>
 
     <!-- Scripts -->
-    <script defer src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
-    <script type="module" src="src/js/main.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/hls.js@1" crossorigin></script>
+    <script type="module" src="./src/js/main.js"></script>
 
     <script>
         // PWA Install Logic
