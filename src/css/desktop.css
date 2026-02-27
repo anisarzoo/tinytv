@@ -1,0 +1,648 @@
+@media (min-width: 768px) {
+    .content {
+        display: flex;
+        gap: 1.5rem;
+        padding: 1.5rem;
+        overflow: hidden;
+    }
+
+    /* ========== CHANNEL GRID WITH INTEGRATED FILTERS ========== */
+    .channel-grid-container {
+        flex: 0 0 420px;
+        display: flex;
+        flex-direction: column;
+        background: var(--secondary);
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+    }
+
+    /* Search bar at top */
+    .desktop-search-container {
+        padding: 0.85rem 1rem;
+        border-bottom: 1px solid var(--border);
+        background: var(--primary);
+    }
+
+    .desktop-search-wrapper {
+        position: relative;
+    }
+
+    .desktop-search-wrapper .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 18px;
+        height: 18px;
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
+    .desktop-search-input {
+        width: 100%;
+        padding: 0.7rem 0.7rem 0.7rem 40px;
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text);
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+
+    .desktop-search-input:focus {
+        outline: none;
+        border-color: var(--highlight);
+        box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.1);
+    }
+
+    /* Collapsible filter section */
+    .desktop-filter-section {
+        border-bottom: 1px solid var(--border);
+        background: var(--primary);
+    }
+
+    .desktop-filter-toggle {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0.9rem 1rem;
+        background: transparent;
+        border: none;
+        color: var(--text);
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .desktop-filter-toggle:hover {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .desktop-filter-toggle svg:first-child {
+        width: 18px;
+        height: 18px;
+        color: var(--highlight);
+    }
+
+    .desktop-filter-toggle .dropdown-icon {
+        width: 16px;
+        height: 16px;
+        margin-left: auto;
+        transition: transform 0.3s;
+        opacity: 0.7;
+    }
+
+    .desktop-filter-toggle.open .dropdown-icon {
+        transform: rotate(180deg);
+    }
+
+    .desktop-filters-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        background: var(--accent);
+    }
+
+    .desktop-filters-content.open {
+        max-height: 600px;
+        overflow-y: auto;
+    }
+
+    .desktop-filters-content::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .desktop-filters-content::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 10px;
+    }
+
+    .desktop-filter-group {
+        padding: 0.7rem 1rem;
+    }
+
+    .desktop-filter-group label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.4rem;
+    }
+
+    .desktop-filter-select {
+        width: 100%;
+        padding: 0.65rem;
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .desktop-filter-select:focus {
+        outline: none;
+        border-color: var(--highlight);
+        box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.1);
+    }
+
+    .desktop-filter-toggles {
+        padding: 0.7rem 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .desktop-toggle-option {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        padding: 0.7rem;
+        background: var(--card-bg);
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+    }
+
+    .desktop-toggle-option:hover {
+        background: var(--border);
+    }
+
+    .desktop-toggle-option input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: var(--highlight);
+    }
+
+    .desktop-stats {
+        display: flex;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .desktop-stat-item {
+        flex: 1;
+        text-align: center;
+        padding: 0.5rem;
+        background: var(--card-bg);
+        border-radius: 8px;
+    }
+
+    .desktop-stat-item strong {
+        display: block;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--highlight);
+    }
+
+    .desktop-stat-item span {
+        display: block;
+        font-size: 0.7rem;
+        color: var(--text-dim);
+        margin-top: 0.2rem;
+    }
+
+    /* Channel Grid - scrollable list */
+    .channel-grid {
+        flex: 1;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        padding: 1rem 0.75rem 1rem 1rem;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.7rem;
+        align-content: start;
+    }
+
+    .channel-grid::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .channel-grid::-webkit-scrollbar-track {
+        background: transparent;
+        margin: 8px 0;
+    }
+
+    .channel-grid::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 10px;
+    }
+
+    .channel-grid::-webkit-scrollbar-thumb:hover {
+        background: var(--highlight);
+    }
+
+    .channel-card {
+        display: flex;
+        gap: 0.85rem;
+        padding: 0.85rem;
+        padding-right: 0.3rem; /* EVEN TIGHTER - reduced from 0.5rem */
+        background: var(--card-bg);
+        border: 2px solid transparent;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .channel-card:hover {
+        border-color: var(--highlight);
+        transform: translateX(6px);
+        box-shadow: 0 8px 24px rgba(244, 63, 94, 0.2);
+    }
+
+    .channel-card.active {
+        border-color: var(--highlight);
+        background: linear-gradient(135deg, rgba(244, 63, 94, 0.15), rgba(236, 72, 153, 0.1));
+        box-shadow: 0 8px 24px rgba(244, 63, 94, 0.3);
+    }
+
+    .channel-card img,
+    .channel-placeholder {
+        width: 70px;
+        height: 70px;
+        border-radius: 10px;
+        object-fit: contain;
+        background: var(--accent);
+        flex-shrink: 0;
+        border: 1px solid var(--border);
+    }
+
+    .channel-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        background: linear-gradient(135deg, var(--accent), var(--secondary));
+    }
+
+    .channel-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        min-width: 0;
+        padding-right: 0;
+        max-width: calc(100% - 110px); /* LIMIT WIDTH - prevent overlap with heart */
+    }
+
+    .channel-name {
+        font-size: 0.95rem;
+        font-weight: 600;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        line-height: 1.3;
+    }
+
+    .channel-meta {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .channel-category {
+        background: var(--accent);
+        padding: 0.25rem 0.6rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border: 1px solid var(--border);
+        transition: all 0.2s ease;
+    }
+
+    .channel-card:hover .channel-category {
+        background: var(--border);
+    }
+
+    .quality-badge {
+        background: linear-gradient(135deg, var(--highlight), #ec4899);
+        color: white;
+        padding: 0.25rem 0.6rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        box-shadow: 0 2px 8px rgba(244, 63, 94, 0.3);
+    }
+
+    .offline-badge {
+        background: #6b7280;
+        color: white;
+        padding: 0.25rem 0.6rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    /* HEART BUTTON - CLOSER TO CONTENT */
+    .channel-card .channel-fav {
+        position: absolute;
+        top: 50%;
+        right: 0.2rem; /* MOVED EVEN CLOSER - from 0.3rem */
+        transform: translateY(-50%);
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        border-radius: 50%;
+        border: 2px solid rgba(148, 163, 184, 0.5);
+        background: rgba(15, 23, 42, 0.96);
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        padding: 0;
+        transition: all 0.18s ease;
+        z-index: 100;
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .channel-card .channel-fav .fav-icon {
+        width: 16px;
+        height: 16px;
+        fill: transparent;
+        stroke: rgba(148, 163, 184, 0.9);
+        stroke-width: 2.5;
+        transition: transform 0.18s ease, fill 0.18s ease;
+    }
+
+    .channel-card .channel-fav.fav-active {
+        background: rgba(24, 24, 27, 0.98);
+        border-color: #f43f5e;
+        box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.25);
+    }
+
+    .channel-card .channel-fav.fav-active .fav-icon {
+        fill: #f43f5e;
+        stroke: #f43f5e;
+        transform: scale(1.1);
+    }
+
+    .channel-card .channel-fav:hover {
+        transform: translateY(-50%) scale(1.15);
+        background: rgba(30, 64, 175, 0.95);
+        border-color: #f43f5e;
+    }
+
+    /* PLAYER + FAVORITES SECTION */
+    .player-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        overflow: hidden;
+    }
+
+    .video-container {
+        flex: 0 0 auto;
+        aspect-ratio: 16/9;
+        max-height: 45vh;
+        border-radius: 16px;
+        overflow: hidden;
+        background: #000;
+    }
+
+    /* UNIFIED FAVORITES CONTAINER */
+    .favorites-container {
+        display: flex;
+        flex-direction: column;
+        padding: 1rem 1.25rem;
+        background: var(--secondary);
+        border-radius: 16px;
+        border: 1px solid var(--border);
+
+        /* FIXED: Match left panel height */
+        flex: 1; /* Take remaining space */
+        min-height: 0; /* Allow flexbox shrinking */
+        overflow: hidden; /* Prevent overflow */
+    }
+
+    .favorites-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.85rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .favorites-header h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        margin: 0;
+    }
+
+    .favorites-header h3 svg {
+        display: none;
+    }
+
+    .favorites-header .fav-count {
+        font-size: 0.85rem;
+        color: var(--text-dim);
+        font-weight: 500;
+    }
+
+    .favorites-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.75rem;
+
+        /* FIXED: Grid fills container and scrolls */
+        flex: 1; /* Take remaining space after header */
+        overflow-y: auto; /* Enable scroll */
+        padding-right: 0.5rem;
+        align-content: start; /* Align items to top */
+    }
+
+    .favorites-grid::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .favorites-grid::-webkit-scrollbar-track {
+        background: var(--accent);
+        border-radius: 3px;
+    }
+
+    .favorites-grid::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 3px;
+    }
+
+    .favorites-grid::-webkit-scrollbar-thumb:hover {
+        background: var(--highlight);
+    }
+
+    .favorite-card {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.65rem 0.75rem;
+        background: var(--card-bg);
+        border-radius: 12px;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: all 0.18s ease;
+    }
+
+    .favorite-card:hover {
+        border-color: var(--highlight);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(244, 63, 94, 0.2);
+    }
+
+    .favorite-card.active {
+        border-color: var(--highlight);
+        background: linear-gradient(135deg, rgba(244, 63, 94, 0.1), rgba(236, 72, 153, 0.05));
+        box-shadow: 0 4px 12px rgba(244, 63, 94, 0.2);
+    }
+
+    .favorite-card .channel-logo {
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        overflow: hidden;
+        flex-shrink: 0;
+        background: var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--border);
+    }
+
+    .favorite-card .channel-logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .favorite-card .channel-info {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+
+    .favorite-card .channel-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .favorite-card .channel-meta {
+        font-size: 0.75rem;
+        color: var(--text-dim);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .favorite-card .channel-fav {
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        border-radius: 50%;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        background: rgba(15, 23, 42, 0.96);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        padding: 0;
+        transition: all 0.18s ease;
+    }
+
+    .favorite-card .channel-fav .fav-icon {
+        width: 15px;
+        height: 15px;
+        fill: #f43f5e;
+        stroke: #f43f5e;
+        stroke-width: 2;
+    }
+
+    .favorite-card .channel-fav:hover {
+        background: rgba(30, 64, 175, 0.95);
+        border-color: rgba(248, 113, 113, 0.9);
+        transform: scale(1.1);
+    }
+
+    .favorites-empty {
+        text-align: center;
+        padding: 2rem 1rem;
+        color: var(--text-dim);
+    }
+
+    .favorites-empty svg {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 1rem;
+        opacity: 0.5;
+    }
+
+    .favorites-empty p {
+        font-size: 0.9rem;
+    }
+
+    /* Hide old filter panel - now integrated in channel grid */
+    .filter-panel {
+        display: none !important;
+    }
+
+    /* Hide filter button in header - not needed anymore */
+    #filterBtn {
+        display: none !important;
+    }
+}
+/* 🔥 COMPLETE desktop.css - PERFECT 2x2 + Toggle Hover FIXED */
+@media (min-width: 768px) {
+    /* 2x2 FILTERS LAYOUT */
+    .desktop-filters-content.open {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0.75rem !important;
+        padding: 1rem !important;
+    }
+    
+    /* TOGGLES + STATS = FULL WIDTH */
+    .desktop-filter-toggles, 
+    .desktop-stats {
+        grid-column: 1 / -1 !important;
+    }
+    
+    /* 2 TOGGLE BUTTONS SIDE-BY-SIDE */
+    .desktop-filter-toggles {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0.75rem !important;
+    }
+    
+    /* FIXED: Toggle Hover - OPPOSITE SIDES */
+    .desktop-toggle-option:hover {
+        background: linear-gradient(135deg, var(--highlight), #ec4899) !important;
+        color: white !important;
+        transform: translateX(4px) !important;
+        box-shadow: 0 4px 12px rgba(244, 63, 94, 0.4) !important;
+    }
+    
+    /* Toggle Active State */
+    .desktop-toggle-option.active {
+        background: linear-gradient(135deg, var(--highlight), #ec4899) !important;
+        color: white !important;
+        border-color: var(--highlight) !important;
+    }
+}

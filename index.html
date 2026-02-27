@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- PERFORMANCE OPTIMIZATION: DNS Prefetch & Preconnect -->
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+    <link rel="preconnect" href="//cdn.jsdelivr.net" crossorigin>
+
+    <!-- Preload critical resources -->
+    <link rel="preload" href="src/css/main.css" as="style">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/hls.js@1" as="script">
+    <link rel="modulepreload" href="src/js/main.js">
+    <link rel="modulepreload" href="src/js/app.js">
+    <link rel="modulepreload" href="src/js/components/player.js">
+    <link rel="modulepreload" href="src/js/components/channelgrid.js">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="description" content="Tivy - Watch live TV channels from around the world">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="referrer" content="no-referrer">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="favicon.png">
+
+    <title>Tivy - Live TV Player</title>
+
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="src/css/main.css">
+    <link rel="stylesheet" href="src/css/player.css">
+    <link rel="stylesheet" href="src/css/sidebar.css">
+    <link rel="stylesheet" href="src/css/desktop.css">
+    <link rel="stylesheet" href="src/css/mobile.css">
+</head>
+
+<body>
+    <div id="splash" class="splash">
+        <div class="splash-content">
+            <div class="splash-logo-container">
+                <svg class="splash-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+                    <polyline points="17 2 12 7 7 2"></polyline>
+                </svg>
+                <h1 class="splash-logo">Tivy</h1>
+            </div>
+            <div class="splash-loading-wrapper">
+                <div class="splash-spinner"></div>
+                <p>Establishing uplink...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app" class="app" style="display:none;">
+        <!-- Header -->
+        <header class="header">
+            <button id="menuBtn" class="header-btn mobile-only">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+
+            <div class="logo-container">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+                    <polyline points="17 2 12 7 7 2"></polyline>
+                </svg>
+                <h1 class="logo">Tivy</h1>
+            </div>
+
+            <div class="header-actions">
+                <button id="filterBtn" class="header-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                    </svg>
+                    <span class="btn-text">Filters</span>
+                </button>
+
+                <!-- PWA INSTALL BUTTON -->
+                <button id="installBtn" class="header-btn install-btn" style="display: none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span class="btn-text">Install</span>
+                </button>
+
+                <button id="themeBtn" class="header-btn theme-btn">
+                    <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        style="display:none;">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Sidebar Overlay -->
+        <div id="overlay" class="overlay"></div>
+
+        <!-- Sidebar (Mobile Only) -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <div>
+                    <h2>Channels</h2>
+                    <span class="sidebar-count"><span id="sidebarChannelCount">0</span> channels</span>
+                </div>
+                <button id="closeSidebar" class="close-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Search Bar in Sidebar -->
+            <div class="sidebar-search-container">
+                <div class="sidebar-search-wrapper">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input type="text" id="sidebarSearchInput" class="sidebar-search-input"
+                        placeholder="Search channels...">
+                </div>
+            </div>
+
+            <!-- Collapsible Filter Section -->
+            <div class="sidebar-filter-section">
+                <button id="sidebarFilterToggle" class="sidebar-filter-toggle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                    </svg>
+                    <span>Filters & Options</span>
+                    <svg class="dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
+
+                <div id="sidebarFiltersContent" class="sidebar-filters-content">
+                    <!-- Region -->
+                    <div class="sidebar-filter-group">
+                        <label>Region</label>
+                        <select id="sidebarRegionSelect" class="sidebar-filter-select">
+                            <option value="ALL">All channels</option>
+                            <option value="IN" selected>India</option>
+                            <option value="PK">Pakistan</option>
+                            <option value="US">USA</option>
+                            <option value="GB">UK</option>
+                            <option value="AE">UAE</option>
+                            <option value="SA">Saudi Arabia</option>
+                            <option value="CA">Canada</option>
+                            <option value="AU">Australia</option>
+                            <option value="FR">France</option>
+                            <option value="DE">Germany</option>
+                            <option value="BR">Brazil</option>
+                            <option value="JP">Japan</option>
+                        </select>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="sidebar-filter-group">
+                        <label>Category</label>
+                        <select id="sidebarCategorySelect" class="sidebar-filter-select">
+                            <option value="">All Categories</option>
+                        </select>
+                    </div>
+
+                    <!-- Quality -->
+                    <div class="sidebar-filter-group">
+                        <label>Quality</label>
+                        <select id="sidebarQualitySelect" class="sidebar-filter-select">
+                            <option value="all">All Quality</option>
+                            <option value="hd">HD (720p+)</option>
+                            <option value="fhd">Full HD (1080p+)</option>
+                        </select>
+                    </div>
+
+                    <!-- Sort -->
+                    <div class="sidebar-filter-group">
+                        <label>Sort By</label>
+                        <select id="sidebarSortSelect" class="sidebar-filter-select">
+                            <option value="smart">Smart</option>
+                            <option value="name">A-Z</option>
+                            <option value="quality">Quality</option>
+                            <option value="category">Category</option>
+                        </select>
+                    </div>
+
+                    <!-- Toggles -->
+                    <div class="sidebar-filter-toggles">
+                        <label class="sidebar-toggle-option">
+                            <input type="checkbox" id="sidebarHideRegional" checked>
+                            <span class="toggle-text">Hide Regional Channels</span>
+                        </label>
+
+                        <label class="sidebar-toggle-option">
+                            <input type="checkbox" id="sidebarHideOffline" checked>
+                            <span class="toggle-text">Hide Offline Channels</span>
+                        </label>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="sidebar-filter-stats">
+                        <div class="stat-item">
+                            <strong id="sidebarStatChannels">0</strong>
+                            <span>Channels</span>
+                        </div>
+                        <div class="stat-item">
+                            <strong id="sidebarStatFavorites">0</strong>
+                            <span>Favorites</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Channel List -->
+            <div id="sidebarChannels" class="sidebar-channels"></div>
+        </aside>
+
+        <!-- Filter Panel (Desktop Only) -->
+        <div id="filterPanel" class="filter-panel">
+            <div class="filter-panel-header">
+                <h3>Filters & Options</h3>
+                <button id="closeFilter" class="close-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="filter-content-modern">
+                <div class="modern-filters">
+                    <!-- Search -->
+                    <div class="filter-input-group">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                        <input type="text" id="searchInput" class="modern-input" placeholder="Search channels...">
+                    </div>
+
+                    <!-- Row 1: Region + Category -->
+                    <div class="filter-grid">
+                        <div class="filter-select-group">
+                            <label class="filter-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                                    <path
+                                        d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
+                                    </path>
+                                </svg>
+                                Region
+                            </label>
+                            <select id="regionSelect" class="modern-select">
+                                <option value="ALL">All channels</option>
+                                <option value="IN" selected>India</option>
+                                <option value="PK">Pakistan</option>
+                                <option value="US">USA</option>
+                                <option value="GB">UK</option>
+                                <option value="AE">UAE</option>
+                                <option value="SA">Saudi Arabia</option>
+                                <option value="CA">Canada</option>
+                                <option value="AU">Australia</option>
+                                <option value="FR">France</option>
+                                <option value="DE">Germany</option>
+                                <option value="BR">Brazil</option>
+                                <option value="JP">Japan</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-select-group">
+                            <label class="filter-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path
+                                        d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z">
+                                    </path>
+                                </svg>
+                                Category
+                            </label>
+                            <select id="categorySelect" class="modern-select">
+                                <option value="">All Categories</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Quality + Sort -->
+                    <div class="filter-grid">
+                        <div class="filter-select-group">
+                            <label class="filter-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+                                    <polyline points="17 2 12 7 7 2"></polyline>
+                                </svg>
+                                Quality
+                            </label>
+                            <select id="qualitySelect" class="modern-select">
+                                <option value="all" selected>All Quality</option>
+                                <option value="hd">HD (720p+)</option>
+                                <option value="fhd">Full HD (1080p+)</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-select-group">
+                            <label class="filter-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                                </svg>
+                                Sort By
+                            </label>
+                            <select id="sortSelect" class="modern-select">
+                                <option value="smart" selected>Smart</option>
+                                <option value="name">A-Z</option>
+                                <option value="quality">Quality</option>
+                                <option value="category">Category</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Toggles -->
+                    <div class="modern-toggles">
+                        <label class="modern-toggle">
+                            <input type="checkbox" id="hideRegional" checked>
+                            <span class="toggle-track">
+                                <span class="toggle-thumb"></span>
+                            </span>
+                            <span class="toggle-content">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+                                </svg>
+                                <span class="toggle-label">Hide Regional Channels</span>
+                            </span>
+                        </label>
+
+                        <label class="modern-toggle">
+                            <input type="checkbox" id="hideOffline" checked>
+                            <span class="toggle-track">
+                                <span class="toggle-thumb"></span>
+                            </span>
+                            <span class="toggle-content">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="m9 9 5 12 1.8-5.2L21 14Z"></path>
+                                    <path d="M7.2 2.2 8 5.1"></path>
+                                    <path d="m5.1 8-2.9-.8"></path>
+                                    <path d="M14 4.1 12 6"></path>
+                                    <path d="m6 12-1.9 2"></path>
+                                </svg>
+                                <span class="toggle-label">Hide Offline Channels</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="modern-stats">
+                    <div class="stat-card">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+                            <polyline points="17 2 12 7 7 2"></polyline>
+                        </svg>
+                        <div class="stat-info">
+                            <span class="stat-value" id="channelCount">0</span>
+                            <span class="stat-label">Channels</span>
+                        </div>
+                        <div class="stat-card">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                                </path>
+                            </svg>
+                            <div class="stat-info">
+                                <span class="stat-value" id="favoriteCount">0</span>
+                                <span class="stat-label">Favorites</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <!-- ALL CHANNELS GRID (Desktop Left Side) -->
+            <div class="channel-grid-container desktop-only">
+                <!-- Search bar -->
+                <div class="desktop-search-container">
+                    <div class="desktop-search-wrapper">
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                        <input type="text" id="desktopSearchInput" class="desktop-search-input"
+                            placeholder="Search channels..." />
+                    </div>
+                </div>
+
+                <!-- Collapsible filter section -->
+                <div class="desktop-filter-section">
+                    <button id="desktopFilterToggle" class="desktop-filter-toggle">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                        </svg>
+                        <span>Filter Options</span>
+                        <svg class="dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+
+                    <div id="desktopFiltersContent" class="desktop-filters-content">
+                        <!-- Region -->
+                        <div class="desktop-filter-group">
+                            <label>Region</label>
+                            <select id="desktopRegionSelect" class="desktop-filter-select">
+                                <option value="ALL" selected>All channels</option>
+                                <option value="IN">India</option>
+                                <option value="PK">Pakistan</option>
+                                <option value="US">USA</option>
+                                <option value="GB">UK</option>
+                                <option value="AE">UAE</option>
+                                <option value="SA">Saudi Arabia</option>
+                                <option value="CA">Canada</option>
+                                <option value="AU">Australia</option>
+                                <option value="FR">France</option>
+                                <option value="DE">Germany</option>
+                                <option value="BR">Brazil</option>
+                                <option value="JP">Japan</option>
+                            </select>
+                        </div>
+
+                        <!-- Category -->
+                        <div class="desktop-filter-group">
+                            <label>Category</label>
+                            <select id="desktopCategorySelect" class="desktop-filter-select">
+                                <option value="">All Categories</option>
+                            </select>
+                        </div>
+
+                        <!-- Quality -->
+                        <div class="desktop-filter-group">
+                            <label>Quality</label>
+                            <select id="desktopQualitySelect" class="desktop-filter-select">
+                                <option value="all">All Quality</option>
+                                <option value="hd">HD (720p)</option>
+                                <option value="fhd">Full HD (1080p)</option>
+                            </select>
+                        </div>
+
+                        <!-- Sort -->
+                        <div class="desktop-filter-group">
+                            <label>Sort By</label>
+                            <select id="desktopSortSelect" class="desktop-filter-select">
+                                <option value="smart">Smart</option>
+                                <option value="name">A-Z</option>
+                                <option value="quality">Quality</option>
+                                <option value="category">Category</option>
+                            </select>
+                        </div>
+
+                        <!-- Toggles -->
+                        <div class="desktop-filter-toggles">
+                            <label class="desktop-toggle-option">
+                                <input type="checkbox" id="desktopHideRegional" checked />
+                                <span>Hide Regional Channels</span>
+                            </label>
+                            <label class="desktop-toggle-option">
+                                <input type="checkbox" id="desktopHideOffline" checked />
+                                <span>Hide Offline Channels</span>
+                            </label>
+                        </div>
+
+                        <!-- Stats -->
+                        <div class="desktop-stats">
+                            <div class="desktop-stat-item">
+                                <strong id="desktopStatChannels">0</strong>
+                                <span>Channels</span>
+                            </div>
+                            <div class="desktop-stat-item">
+                                <strong id="desktopStatFavorites">0</strong>
+                                <span>Favorites</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Channel cards grid (scrollable) -->
+                <div id="channelGrid" class="channel-grid"></div>
+            </div>
+
+            <!-- PLAYER + UNIFIED FAVORITES SECTION -->
+            <section class="player-section">
+                <div id="videoContainer" class="video-container">
+                    <video id="video" playsinline webkit-playsinline></video>
+
+                    <!-- Center Play -->
+                    <div id="centerPlayBtn" class="center-play-btn">
+                        <button onclick="window.togglePlayPause()">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Overlay -->
+                    <div class="video-overlay" id="videoOverlay">
+                        <!-- Top Bar -->
+                        <div class="top-bar" id="topBar">
+                            <div class="channel-info-top">
+                                <h2 id="channelTitle">Select a channel to start</h2>
+                                <span id="channelMeta"></span>
+                            </div>
+                        </div>
+
+                        <!-- Bottom Bar -->
+                        <div class="bottom-bar" id="bottomBar">
+                            <!-- Progress -->
+                            <div class="progress-bar" id="progressBar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+
+                            <!-- Controls -->
+                            <div class="video-controls">
+                                <div class="controls-left">
+                                    <button class="control-btn icon-round" onclick="window.togglePlayPause()"
+                                        id="playBtn" title="Play/Pause">
+                                        <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
+                                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                        </svg>
+                                        <svg class="pause-icon" viewBox="0 0 24 24" fill="currentColor"
+                                            style="display:none;">
+                                            <rect x="6" y="4" width="4" height="16"></rect>
+                                            <rect x="14" y="4" width="4" height="16"></rect>
+                                        </svg>
+                                    </button>
+
+                                    <button class="control-btn icon-round" onclick="window.handlePrevChannel()"
+                                        title="Previous">
+                                        <svg viewBox="0 0 24 24" fill="currentColor">
+                                            <polygon points="19 20 9 12 19 4 19 20"></polygon>
+                                            <line x1="5" y1="19" x2="5" y2="5"></line>
+                                        </svg>
+                                    </button>
+
+                                    <button class="control-btn icon-round" onclick="window.handleNextChannel()"
+                                        title="Next">
+                                        <svg viewBox="0 0 24 24" fill="currentColor">
+                                            <polygon points="5 4 15 12 5 20 5 4"></polygon>
+                                            <line x1="19" y1="5" x2="19" y2="19"></line>
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <div class="volume-control">
+                                    <button class="control-btn icon-round" onclick="window.toggleMute()" id="muteBtn"
+                                        title="Volume">
+                                        <svg class="volume-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2">
+                                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                                            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                                        </svg>
+                                    </button>
+                                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100"
+                                        value="100" title="Volume">
+                                </div>
+
+                                <div class="controls-right">
+                                    <!-- Heart (favorite) -->
+                                    <button class="control-btn icon-round" onclick="window.toggleFavoriteBtn()"
+                                        id="favBtn" title="Favorite">
+                                        <svg viewBox="0 0 24 24" class="fav-icon" aria-hidden="true">
+                                            <path
+                                                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.22 2.09 C11.09 5.01 12.76 4 14.5 4 17 4 19 6 19 8.5 c0 3.78-3.4 6.86-8.55 11.54L12 21.35z">
+                                            </path>
+                                        </svg>
+                                    </button>
+
+                                    <button class="control-btn control-btn-pill" onclick="window.showQualityModal()"
+                                        id="qualityBtn" title="Quality">Auto</button>
+
+                                    <button class="control-btn icon-round" onclick="window.toggleFullscreen()"
+                                        title="Fullscreen">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path
+                                                d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3">
+                                            </path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Gesture Feedback -->
+                        <div class="gesture-feedback" id="gestureFeedback"></div>
+
+                        <!-- Indicators -->
+                        <div class="indicator left" id="brightnessIndicator">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="5"></circle>
+                                <line x1="12" y1="1" x2="12" y2="3"></line>
+                                <line x1="12" y1="21" x2="12" y2="23"></line>
+                            </svg>
+                            <div class="indicator-bar">
+                                <div id="brightnessBar"></div>
+                            </div>
+                        </div>
+
+                        <div class="indicator right" id="volumeIndicator">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                            </svg>
+                            <div class="indicator-bar">
+                                <div id="volumeBar"></div>
+                            </div>
+                        </div>
+
+                        <!-- Loading -->
+                        <div class="video-loading" id="videoLoading">
+                            <div class="modern-spinner"></div>
+                            <p>Loading stream...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- UNIFIED FAVORITES SECTION (Works for both mobile and desktop) -->
+                <div id="favoritesContainer" class="favorites-container">
+                    <div class="favorites-header">
+                        <h3>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                                </path>
+                            </svg>
+                            <span class="favorites-title">My Favorites</span>
+                            <span class="fav-count">(<span id="favCount">0</span>)</span>
+                        </h3>
+                    </div>
+                    <div id="favoritesGrid" class="favorites-grid"></div>
+                    <div id="favoritesEmpty" class="favorites-empty" style="display: none;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                            </path>
+                        </svg>
+                        <p>No favorites yet. Click the heart icon on any channel to add it here.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Quality Modal -->
+    <div id="qualityModal" class="modal">
+        <div class="modal-content">
+            <h3>Select Quality</h3>
+            <div id="qualityOptions"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script defer src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
+    <script type="module" src="src/js/main.js"></script>
+
+    <script>
+        // PWA Install Logic
+        let deferredPrompt = null;
+        const installBtn = document.getElementById('installBtn');
+
+        installBtn.style.display = 'none';
+
+        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+            installBtn.style.display = 'none';
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'flex';
+            console.log('PWA Install available');
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+
+            if (outcome === 'accepted') {
+                console.log('User installed PWA');
+                installBtn.style.display = 'none';
+            } else {
+                console.log('User dismissed install');
+            }
+
+            deferredPrompt = null;
+        });
+
+        window.addEventListener('appinstalled', () => {
+            console.log('Tivy installed!');
+            installBtn.style.display = 'none';
+            deferredPrompt = null;
+        });
+
+        // Service worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('Service Worker registered'))
+                    .catch(err => console.log('Service Worker registration failed', err));
+            });
+        }
+    </script>
+</body>
+
+</html>
