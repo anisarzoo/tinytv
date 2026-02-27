@@ -592,7 +592,6 @@
                                 </div>
 
                                 <div class="controls-right">
-                                    <!-- Heart (favorite) -->
                                     <button class="control-btn" onclick="window.toggleFavoriteBtn()" id="favBtn"
                                         title="Favorite">
                                         <svg viewBox="0 0 24 24" class="fav-icon" fill="none" stroke="currentColor"
@@ -600,6 +599,18 @@
                                             <path
                                                 d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
                                             </path>
+                                        </svg>
+                                    </button>
+
+                                    <button class="control-btn" id="playerFavMenuBtn" title="Favorites List">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="8" y1="6" x2="21" y2="6"></line>
+                                            <line x1="8" y1="12" x2="21" y2="12"></line>
+                                            <line x1="8" y1="18" x2="21" y2="18"></line>
+                                            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                            <line x1="3" y1="18" x2="3.01" y2="18"></line>
                                         </svg>
                                     </button>
 
@@ -647,6 +658,20 @@
                         <div class="video-loading" id="videoLoading">
                             <div class="modern-spinner"></div>
                             <p>Loading stream...</p>
+                        </div>
+
+                        <!-- Favorites Player Overlay -->
+                        <div id="playerFavOverlay" class="player-fav-overlay">
+                            <div class="player-fav-header">
+                                <h3>Favorites</h3>
+                                <button id="closePlayerFav" class="close-btn-mini">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div id="playerFavList" class="player-fav-list"></div>
                         </div>
                     </div>
                 </div>

@@ -125,64 +125,98 @@ export function renderChannelGrid(channels, onPlay) {
 export function renderFavoritesGrid(allChannels, onPlay) {
     const favGrid = document.getElementById('favoritesGrid');
     const favEmpty = document.getElementById('favoritesEmpty');
-
-    if (!favGrid) return;
+    const playerFavList = document.getElementById('playerFavList');
 
     const favorites = getFavorites();
     window.updateFavoritesCount();
 
-    if (favorites.length === 0) {
-        if (favEmpty) favEmpty.style.display = 'block';
-        favGrid.innerHTML = '';
-        return;
+    // 1. Render to main favorites grid (Mobile)
+    if (favGrid) {
+        if (favorites.length === 0) {
+            if (favEmpty) favEmpty.style.display = 'block';
+            favGrid.innerHTML = '';
+        } else {
+            if (favEmpty) favEmpty.style.display = 'none';
+            favGrid.innerHTML = '';
+            renderToGrid(favGrid, favorites, onPlay, 'favorite-card');
+        }
     }
 
-    if (favEmpty) favEmpty.style.display = 'none';
-    favGrid.innerHTML = '';
+    // 2. Render to player favorites overlay (Desktop/Fullscreen)
+    if (playerFavList) {
+        playerFavList.innerHTML = '';
+        if (favorites.length === 0) {
+            playerFavList.innerHTML = '<div class="favorites-empty"><p>No favorites yet.</p></div>';
+        } else {
+            renderToGrid(playerFavList, favorites, onPlay, 'player-fav-item');
+        }
+    }
+}
 
-    // Render from stored favorites to ensure they persist across regions
-    favorites.forEach((ch, idx) => {
-        const card = document.createElement('div');
-        card.className = 'favorite-card';
+// Helper to render channel items to a container
+function renderToGrid(container, channels, onPlay, className) {
+    channels.forEach((ch, idx) => {
+        const item = document.createElement('div');
+        item.className = className;
 
         const logoUrl = ch.logo || '';
         const hasLogo = logoUrl !== '';
 
-        card.innerHTML = `
-            <div class="channel-logo">
-                <img src="${logoUrl}" alt="${ch.name}" style="${hasLogo ? '' : 'display:none'}" onerror="window.handleImageError(this)">
-                <div class="channel-placeholder" style="${hasLogo ? 'display:none' : 'display:flex'}">${ch.name?.[0] || 'TV'}</div>
-            </div>
-            <div class="channel-info">
-                <div class="channel-title">${ch.name}</div>
-                <div class="channel-meta">
-                    <span>${ch.category || 'General'}</span>
-                    ${ch.quality ? `<span>${ch.quality}p</span>` : ''}
+        if (className === 'player-fav-item') {
+            item.innerHTML = `
+                <div class="channel-logo">
+                    <img src="${logoUrl}" alt="${ch.name}" style="${hasLogo ? '' : 'display:none'}" onerror="window.handleImageError(this)">
+                    <div class="channel-placeholder" style="${hasLogo ? 'display:none' : 'display:flex'}">${ch.name?.[0] || 'TV'}</div>
                 </div>
-            </div>
-            <button class="channel-fav fav-active" data-name="${ch.name}">
-                <svg class="fav-icon" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M12.1 4.3c-1.7-1.8-4.6-1.8-6.3 0-1.7 1.8-1.7 4.7 0 6.5l6.2 6.4 6.2-6.4c1.7-1.8 1.7-4.7 0-6.5-1.7-1.8-4.6-1.8-6.3 0z"></path>
-                </svg>
-            </button>
-        `;
+                <div class="info">
+                    <div class="name">${ch.name}</div>
+                    <div class="meta">${ch.category || 'General'} ${ch.quality ? `• ${ch.quality}p` : ''}</div>
+                </div>
+            `;
+        } else {
+            // Original favorite-card style
+            item.innerHTML = `
+                <div class="channel-logo">
+                    <img src="${logoUrl}" alt="${ch.name}" style="${hasLogo ? '' : 'display:none'}" onerror="window.handleImageError(this)">
+                    <div class="channel-placeholder" style="${hasLogo ? 'display:none' : 'display:flex'}">${ch.name?.[0] || 'TV'}</div>
+                </div>
+                <div class="channel-info">
+                    <div class="channel-title">${ch.name}</div>
+                    <div class="channel-meta">
+                        <span>${ch.category || 'General'}</span>
+                        ${ch.quality ? `<span>${ch.quality}p</span>` : ''}
+                    </div>
+                </div>
+                <button class="channel-fav fav-active" data-name="${ch.name}">
+                    <svg class="fav-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12.1 4.3c-1.7-1.8-4.6-1.8-6.3 0-1.7 1.8-1.7 4.7 0 6.5l6.2 6.4 6.2-6.4c1.7-1.8 1.7-4.7 0-6.5-1.7-1.8-4.6-1.8-6.3 0z"></path>
+                    </svg>
+                </button>
+            `;
+        }
 
-        card.addEventListener('click', (e) => {
-            const favBtn = card.querySelector('.channel-fav');
+        item.addEventListener('click', (e) => {
+            const favBtn = item.querySelector('.channel-fav');
             if (favBtn && favBtn.contains(e.target)) return;
             if (onPlay) onPlay(ch, idx);
+
+            // Close player overlay if open
+            if (className === 'player-fav-item') {
+                const overlay = document.getElementById('playerFavOverlay');
+                if (overlay) overlay.classList.remove('show');
+            }
         });
 
-        const favBtn = card.querySelector('.channel-fav');
+        const favBtn = item.querySelector('.channel-fav');
         if (favBtn) {
             favBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                toggleFavorite(ch); // Pass full object
+                toggleFavorite(ch);
                 window.syncAllFavorites(ch.name);
             });
         }
 
-        favGrid.appendChild(card);
+        container.appendChild(item);
     });
 }
 

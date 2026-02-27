@@ -403,12 +403,16 @@
         flex-direction: column;
         gap: 1rem;
         overflow: hidden;
+        height: 100%;
+        /* 🔥 FILL ENTIRE HEIGHT */
     }
 
     .video-container {
-        flex: 0 0 auto;
-        aspect-ratio: 16/9;
-        max-height: 45vh;
+        flex: 1;
+        /* 🔥 EXPAND TO FILL */
+        width: 100%;
+        max-height: none;
+        /* 🔥 REMOVE LIMIT */
         border-radius: 16px;
         overflow: hidden;
         background: #000;
@@ -431,6 +435,8 @@
         overflow: hidden;
         /* Prevent overflow */
         box-shadow: var(--shadow-md);
+        display: none !important;
+        /* 🔥 HIDDEN ON DESKTOP - INTEGRATED IN PLAYER */
     }
 
     .favorites-header {

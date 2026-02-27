@@ -31,6 +31,45 @@ export function initPlayer() {
   video.addEventListener('click', () => {
     togglePlayPause();
   });
+
+  setupPlayerFavOverlay();
+}
+
+function setupPlayerFavOverlay() {
+  const menuBtn = document.getElementById('playerFavMenuBtn');
+  const overlay = document.getElementById('playerFavOverlay');
+  const closeBtn = document.getElementById('closePlayerFav');
+
+  if (menuBtn && overlay) {
+    menuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      overlay.classList.toggle('show');
+
+      // Re-render favorites to ensure current active channel is matched
+      if (overlay.classList.contains('show') && typeof window.state !== 'undefined') {
+        import('./channelgrid.js').then(({ renderFavoritesGrid }) => {
+          renderFavoritesGrid(window.state.allChannels, window.playChannel);
+        });
+      }
+    });
+  }
+
+  if (closeBtn && overlay) {
+    closeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      overlay.classList.remove('show');
+    });
+  }
+
+  // Close on click outside the overlay (but inside video container)
+  const videoContainer = document.getElementById('videoContainer');
+  if (videoContainer && overlay) {
+    videoContainer.addEventListener('click', (e) => {
+      if (!overlay.contains(e.target) && overlay.classList.contains('show')) {
+        overlay.classList.remove('show');
+      }
+    });
+  }
 }
 
 export function loadStream(channel) {
