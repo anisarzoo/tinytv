@@ -1,8 +1,9 @@
-const CACHE_NAME = 'tivy-v4';
+const CACHE_NAME = 'tinytv-v1';
 const urlsToCache = [
   './',
   'manifest.json',
   'favicon.png',
+  'app.jpg',
   'index.html'
   // Only cache files we KNOW exist - no CSS/JS (they load dynamically)
 ];

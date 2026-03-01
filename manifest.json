@@ -1,6 +1,6 @@
 {
-  "name": "Tivy - Live TV Player",
-  "short_name": "Tivy",
+  "name": "TinyTV - Live TV Player",
+  "short_name": "TinyTV",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -9,21 +9,21 @@
   "description": "Watch live TV channels from around the world",
   "icons": [
     {
-      "src": "favicon.png",
+      "src": "app.jpg",
       "sizes": "192x192",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "any"
     },
     {
-      "src": "favicon.png",
+      "src": "app.jpg",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "any"
     },
     {
-      "src": "favicon.png",
+      "src": "app.jpg",
       "sizes": "192x192",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "maskable"
     }
   ]
