@@ -8,6 +8,7 @@
   background: var(--secondary);
   transform: translateX(-100%);
   transition: transform 0.3s ease;
+  will-change: transform;
   z-index: 999;
   display: flex;
   flex-direction: column;

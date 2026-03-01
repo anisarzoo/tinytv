@@ -78,6 +78,8 @@ function initSwipeGesture() {
     { passive: true }
   );
 
+  let rafId = null;
+
   swipeTarget.addEventListener(
     'touchmove',
     (e) => {
@@ -94,20 +96,25 @@ function initSwipeGesture() {
 
       const isOpen = sidebar && sidebar.classList.contains('open');
 
-      if (!isOpen && deltaX > 0 && startX < edgeLimit) {
-        // OPENING FEEDBACK: subtle push on content
-        const progress = Math.min(deltaX / 100, 1);
-        const content = document.querySelector('.content');
-        if (content) {
-          content.style.transform = `translateX(${progress * 30}px)`;
+      // Cancel previous frame if it hasn't run yet
+      if (rafId) cancelAnimationFrame(rafId);
+
+      rafId = requestAnimationFrame(() => {
+        if (!isOpen && deltaX > 0 && startX < edgeLimit) {
+          // OPENING FEEDBACK: subtle push on content
+          const progress = Math.min(deltaX / 100, 1);
+          const content = document.querySelector('.content');
+          if (content) {
+            content.style.transform = `translateX(${progress * 30}px)`;
+          }
+        } else if (isOpen && deltaX < 0) {
+          // CLOSING FEEDBACK: slide sidebar back slightly
+          const progress = Math.min(Math.abs(deltaX) / 100, 1);
+          if (sidebar) {
+            sidebar.style.transform = `translateX(-${progress * 20}%)`;
+          }
         }
-      } else if (isOpen && deltaX < 0) {
-        // CLOSING FEEDBACK: slide sidebar back slightly
-        const progress = Math.min(Math.abs(deltaX) / 100, 1);
-        if (sidebar) {
-          sidebar.style.transform = `translateX(-${progress * 20}%)`;
-        }
-      }
+      });
     },
     { passive: true }
   );
@@ -116,6 +123,7 @@ function initSwipeGesture() {
     'touchend',
     (e) => {
       if (!isSwiping) return;
+      if (rafId) cancelAnimationFrame(rafId);
 
       const endX = e.changedTouches[0].clientX;
       const endY = e.changedTouches[0].clientY;

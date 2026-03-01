@@ -236,6 +236,15 @@ body {
     background: var(--bg);
 }
 
+.content {
+    flex: 1;
+    display: flex;
+    position: relative;
+    overflow: hidden;
+    will-change: transform;
+    transition: transform 0.3s ease;
+}
+
 /* HEADER */
 .header {
     display: flex;
