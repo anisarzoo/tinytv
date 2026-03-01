@@ -1,9 +1,9 @@
-const CACHE_NAME = 'tivy-v1';
+const CACHE_NAME = 'tivy-v4';
 const urlsToCache = [
-  '/',
-  '/manifest.json',
-  '/favicon.png',
-  '/index.html'
+  './',
+  'manifest.json',
+  'favicon.png',
+  'index.html'
   // Only cache files we KNOW exist - no CSS/JS (they load dynamically)
 ];
 
