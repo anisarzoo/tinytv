@@ -1,5 +1,26 @@
-// src/js/components/channelgrid.js
 import { isFavorite, getFavorites, toggleFavorite } from '../utils/storage.js';
+
+// ---- PERFORMANCE SETTINGS (OPTIMIZED FOR LOWER END DEVICES) ----
+const INITIAL_LOAD_COUNT = 50;
+const BATCH_LOAD_COUNT = 40;
+const SCROLL_THRESHOLD = 500; // Load more when within 500px of bottom
+
+// State to keep track of rendering progress
+let gridState = {
+    channels: [],
+    onPlay: null,
+    renderedCount: 0,
+    container: null,
+    isInitial: true
+};
+
+let sidebarState = {
+    channels: [],
+    onPlay: null,
+    renderedCount: 0,
+    container: null,
+    isInitial: true
+};
 
 // 🔥 BULLETPROOF FAVORITES COUNT UPDATE - ALL 6 locations
 window.updateFavoritesCount = function () {
@@ -50,12 +71,22 @@ window.syncAllFavorites = function (channelName) {
     }
 };
 
-// Desktop channel grid (left side)
+// Desktop channel grid (left side) - INCREMENTAL RENDER
 export function renderChannelGrid(channels, onPlay) {
     const grid = document.getElementById('channelGrid');
     if (!grid) return;
 
+    // Reset state for new list
+    gridState.channels = channels;
+    gridState.onPlay = onPlay;
+    gridState.renderedCount = 0;
+    gridState.container = grid;
+    gridState.isInitial = true;
+
     grid.innerHTML = '';
+
+    // Clean up previous listeners
+    grid.onscroll = null;
 
     if (channels.length === 0) {
         grid.innerHTML = `
@@ -72,53 +103,82 @@ export function renderChannelGrid(channels, onPlay) {
         return;
     }
 
-    channels.forEach((ch, idx) => {
-        const card = document.createElement('div');
-        card.className = 'channel-card';
-        card.setAttribute('data-channel-id', ch.id || '');
-        card.setAttribute('data-idx', idx);
+    // Load first batch
+    loadMoreGrid();
 
-        const logoUrl = ch.logo || '';
-        const hasLogo = logoUrl !== '';
-        const favorite = isFavorite(ch.name);
-
-        card.innerHTML = `
-            <img src="${logoUrl}" alt="${ch.name}" style="${hasLogo ? '' : 'display:none'}" onerror="window.handleImageError(this)">
-            <div class="channel-placeholder" style="${hasLogo ? 'display:none' : 'display:flex'}">${ch.name?.[0] || 'TV'}</div>
-            <div class="channel-info">
-                <div class="channel-name">${ch.name}</div>
-                <div class="channel-meta">
-                    <span class="channel-category">${(ch.category || 'General').split(';')[0].trim()}</span>
-                    ${ch.quality ? `<span class="quality-badge">${ch.quality}p</span>` : ''}
-                </div>
-            </div>
-            <button class="channel-fav ${favorite ? 'fav-active' : ''}" data-name="${ch.name}">
-                <svg class="fav-icon" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M12.1 4.3c-1.7-1.8-4.6-1.8-6.3 0-1.7 1.8-1.7 4.7 0 6.5l6.2 6.4 6.2-6.4c1.7-1.8 1.7-4.7 0-6.5-1.7-1.8-4.6-1.8-6.3 0z"></path>
-                </svg>
-            </button>
-        `;
-
-        // Click to play
-        card.addEventListener('click', (e) => {
-            const favBtn = card.querySelector('.channel-fav');
-            if (favBtn && favBtn.contains(e.target)) return;
-            if (onPlay) onPlay(ch, idx);
-        });
-
-        // 🔥 CHANNEL GRID HEART - FULL 2-WAY SYNC
-        const favBtn = card.querySelector('.channel-fav');
-        if (favBtn) {
-            favBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                toggleFavorite(ch); // PASS FULL OBJECT
-                favBtn.classList.toggle('fav-active', isFavorite(ch.name));
-                window.syncAllFavorites(ch.name); // 🔥 PLAYER HEART + COUNTS + GRIDS
-            });
+    // Attach scroll listener for infinite scroll
+    grid.onscroll = () => {
+        if (grid.scrollTop + grid.offsetHeight >= grid.scrollHeight - SCROLL_THRESHOLD) {
+            loadMoreGrid();
         }
+    };
+}
 
-        grid.appendChild(card);
+function loadMoreGrid() {
+    if (gridState.renderedCount >= gridState.channels.length) return;
+
+    const start = gridState.renderedCount;
+    const end = Math.min(start + (gridState.isInitial ? INITIAL_LOAD_COUNT : BATCH_LOAD_COUNT), gridState.channels.length);
+    const batch = gridState.channels.slice(start, end);
+
+    const fragment = document.createDocumentFragment();
+
+    batch.forEach((ch, localIdx) => {
+        const globalIdx = start + localIdx;
+        const card = createChannelCard(ch, globalIdx, gridState.onPlay);
+        fragment.appendChild(card);
     });
+
+    gridState.container.appendChild(fragment);
+    gridState.renderedCount = end;
+    gridState.isInitial = false;
+}
+
+// Internal reusable card creator
+function createChannelCard(ch, idx, onPlay) {
+    const card = document.createElement('div');
+    card.className = 'channel-card';
+    card.setAttribute('data-channel-id', ch.id || '');
+    card.setAttribute('data-idx', idx);
+
+    const logoUrl = ch.logo || '';
+    const hasLogo = logoUrl !== '';
+    const favorite = isFavorite(ch.name);
+
+    card.innerHTML = `
+        <img class="channel-logo" loading="lazy" src="${logoUrl}" alt="${ch.name}" style="${hasLogo ? '' : 'display:none'}" onerror="window.handleImageError(this)">
+        <div class="channel-placeholder" style="${hasLogo ? 'display:none' : 'display:flex'}">${ch.name?.[0] || 'TV'}</div>
+        <div class="channel-info">
+            <div class="channel-name">${ch.name}</div>
+            <div class="channel-meta">
+                <span class="channel-category">${(ch.category || 'General').split(';')[0].trim()}</span>
+                ${ch.quality ? `<span class="quality-badge">${ch.quality}p</span>` : ''}
+            </div>
+        </div>
+        <button class="channel-fav ${favorite ? 'fav-active' : ''}" data-name="${ch.name}">
+            <svg class="fav-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12.1 4.3c-1.7-1.8-4.6-1.8-6.3 0-1.7 1.8-1.7 4.7 0 6.5l6.2 6.4 6.2-6.4c1.7-1.8 1.7-4.7 0-6.5-1.7-1.8-4.6-1.8-6.3 0z"></path>
+            </svg>
+        </button>
+    `;
+
+    card.addEventListener('click', (e) => {
+        const favBtn = card.querySelector('.channel-fav');
+        if (favBtn && favBtn.contains(e.target)) return;
+        if (onPlay) onPlay(ch, idx);
+    });
+
+    const favBtn = card.querySelector('.channel-fav');
+    if (favBtn) {
+        favBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleFavorite(ch);
+            favBtn.classList.toggle('fav-active', isFavorite(ch.name));
+            window.syncAllFavorites(ch.name);
+        });
+    }
+
+    return card;
 }
 
 // 🔥 FIXED FAVORITES GRID - RENDERS DIRECTLY FROM STORAGE
@@ -220,67 +280,105 @@ function renderToGrid(container, channels, onPlay, className) {
     });
 }
 
-// Sidebar channel list rendering
+// Sidebar channel list rendering - INCREMENTAL RENDER
 export function renderSidebarChannels(channels, onPlay) {
     const container = document.getElementById('sidebarChannels');
     if (!container) return;
 
+    // Reset sidebar state
+    sidebarState.channels = channels;
+    sidebarState.onPlay = onPlay;
+    sidebarState.renderedCount = 0;
+    sidebarState.container = container;
+    sidebarState.isInitial = true;
+
     container.innerHTML = '';
+    container.onscroll = null;
 
-    channels.forEach((ch, idx) => {
-        const card = document.createElement('div');
-        card.className = 'sidebar-channel';
-        card.setAttribute('data-name', ch.name);
-        card.setAttribute('data-category', ch.category || 'General');
+    if (channels.length > 0) {
+        loadMoreSidebar();
 
-        const logoUrl = ch.logo || '';
-        const hasLogo = logoUrl !== '';
-        const favorite = isFavorite(ch.name);
-        const needsScroll = ch.name.length > 25;
-
-        card.innerHTML = `
-            <div class="channel-icon">
-                <img src="${logoUrl}" alt="${ch.name}" style="${hasLogo ? '' : 'display:none'}" onerror="window.handleImageError(this)">
-                <div class="channel-placeholder" style="${hasLogo ? 'display:none' : 'display:flex'}">${ch.name?.[0] || 'TV'}</div>
-            </div>
-            <div class="channel-text">
-                <div class="channel-name ${needsScroll ? 'scrolling' : ''}">
-                    ${needsScroll ? `<span class="channel-name-inner">${ch.name}</span>` : ch.name}
-                </div>
-                <div class="channel-meta">
-                    <span>${(ch.category || 'General').split(';')[0].trim()}</span>
-                    ${ch.quality ? `<span class="quality">${ch.quality}p</span>` : ''}
-                </div>
-            </div>
-            <button class="channel-fav ${favorite ? 'fav-active' : ''}" data-name="${ch.name}">
-                <svg class="fav-icon" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M12.1 4.3c-1.7-1.8-4.6-1.8-6.3 0-1.7 1.8-1.7 4.7 0 6.5l6.2 6.4 6.2-6.4c1.7-1.8 1.7-4.7 0-6.5-1.7-1.8-4.6-1.8-6.3 0z"></path>
-                </svg>
-            </button>
-        `;
-
-        card.addEventListener('click', (e) => {
-            const favBtn = card.querySelector('.channel-fav');
-            if (favBtn && favBtn.contains(e.target)) return;
-            if (onPlay) onPlay(ch, idx);
-        });
-
-        const favBtn = card.querySelector('.channel-fav');
-        if (favBtn) {
-            favBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                toggleFavorite(ch); // PASS FULL OBJECT
-                favBtn.classList.toggle('fav-active', isFavorite(ch.name));
-                window.syncAllFavorites(ch.name); // 🔥 FULL SYNC
-            });
-        }
-
-        container.appendChild(card);
-    });
+        container.onscroll = () => {
+            if (container.scrollTop + container.offsetHeight >= container.scrollHeight - SCROLL_THRESHOLD) {
+                loadMoreSidebar();
+            }
+        };
+    }
 
     // Update sidebar channel count
     const sidebarChannelCount = document.getElementById('sidebarChannelCount');
     if (sidebarChannelCount) {
         sidebarChannelCount.textContent = channels.length.toString();
     }
+}
+
+function loadMoreSidebar() {
+    if (sidebarState.renderedCount >= sidebarState.channels.length) return;
+
+    const start = sidebarState.renderedCount;
+    const end = Math.min(start + (sidebarState.isInitial ? INITIAL_LOAD_COUNT : BATCH_LOAD_COUNT), sidebarState.channels.length);
+    const batch = sidebarState.channels.slice(start, end);
+
+    const fragment = document.createDocumentFragment();
+
+    batch.forEach((ch, localIdx) => {
+        const globalIdx = start + localIdx;
+        const card = createSidebarItem(ch, globalIdx, sidebarState.onPlay);
+        fragment.appendChild(card);
+    });
+
+    sidebarState.container.appendChild(fragment);
+    sidebarState.renderedCount = end;
+    sidebarState.isInitial = false;
+}
+
+function createSidebarItem(ch, idx, onPlay) {
+    const card = document.createElement('div');
+    card.className = 'sidebar-channel';
+    card.setAttribute('data-name', ch.name);
+    card.setAttribute('data-category', ch.category || 'General');
+
+    const logoUrl = ch.logo || '';
+    const hasLogo = logoUrl !== '';
+    const favorite = isFavorite(ch.name);
+    const needsScroll = ch.name.length > 25;
+
+    card.innerHTML = `
+        <div class="channel-icon">
+            <img loading="lazy" src="${logoUrl}" alt="${ch.name}" style="${hasLogo ? '' : 'display:none'}" onerror="window.handleImageError(this)">
+            <div class="channel-placeholder" style="${hasLogo ? 'display:none' : 'display:flex'}">${ch.name?.[0] || 'TV'}</div>
+        </div>
+        <div class="channel-text">
+            <div class="channel-name ${needsScroll ? 'scrolling' : ''}">
+                ${needsScroll ? `<span class="channel-name-inner">${ch.name}</span>` : ch.name}
+            </div>
+            <div class="channel-meta">
+                <span>${(ch.category || 'General').split(';')[0].trim()}</span>
+                ${ch.quality ? `<span class="quality">${ch.quality}p</span>` : ''}
+            </div>
+        </div>
+        <button class="channel-fav ${favorite ? 'fav-active' : ''}" data-name="${ch.name}">
+            <svg class="fav-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12.1 4.3c-1.7-1.8-4.6-1.8-6.3 0-1.7 1.8-1.7 4.7 0 6.5l6.2 6.4 6.2-6.4c1.7-1.8 1.7-4.7 0-6.5-1.7-1.8-4.6-1.8-6.3 0z"></path>
+            </svg>
+        </button>
+    `;
+
+    card.addEventListener('click', (e) => {
+        const favBtn = card.querySelector('.channel-fav');
+        if (favBtn && favBtn.contains(e.target)) return;
+        if (onPlay) onPlay(ch, idx);
+    });
+
+    const favBtn = card.querySelector('.channel-fav');
+    if (favBtn) {
+        favBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleFavorite(ch);
+            favBtn.classList.toggle('fav-active', isFavorite(ch.name));
+            window.syncAllFavorites(ch.name);
+        });
+    }
+
+    return card;
 }

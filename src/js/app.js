@@ -190,6 +190,16 @@ function updateStats() {
 
 // Play channel and update UI
 export function playChannel(channel, index) {
+    if (!channel) return;
+
+    // FALLBACK: If channel has no URL (old favorites), look it up in master list
+    if (!channel.url && channel.name) {
+        const found = state.allChannels.find(c => c.name === channel.name);
+        if (found) {
+            channel = found;
+        }
+    }
+
     state.currentChannel = channel;
     state.currentIndex = index;
     loadStream(channel);
@@ -228,3 +238,12 @@ window.loadChannels = loadChannels;
 window.handleFilterChange = handleFilterChange;
 window.state = state;
 window.playChannel = playChannel;
+
+// Handle broken channel logos gracefully
+window.handleImageError = function (img) {
+    img.style.display = 'none';
+    const placeholder = img.nextElementSibling;
+    if (placeholder && placeholder.classList.contains('channel-placeholder')) {
+        placeholder.style.display = 'flex';
+    }
+};

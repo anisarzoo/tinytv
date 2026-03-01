@@ -541,14 +541,18 @@ body.light .sun-icon {
 .channel-card {
     display: flex;
     align-items: center;
-    gap: 0.9rem;
-    padding: 0.85rem 1rem;
+    gap: 1.25rem;
+    padding: 0.85rem 1.25rem;
     background: var(--card-bg);
-    border-radius: 16px;
     border: 1px solid var(--border);
+    border-radius: 18px;
     cursor: pointer;
-    transition: all 0.18s ease;
-    margin-bottom: 0.6rem;
+    transition: var(--transition);
+    position: relative;
+    animation: fadeIn 0.35s ease-out;
+    overflow: hidden;
+    min-height: 90px;
+    margin-bottom: 0.8rem;
 }
 
 .channel-card:hover {
@@ -564,25 +568,23 @@ body.light .sun-icon {
     object-fit: contain;
 }
 
-/* Info + heart */
+/* Info container */
 .channel-info {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 0.2rem;
-}
-
-/* name + heart on same row */
-.channel-title-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     gap: 0.5rem;
+    min-width: 0;
 }
 
-.channel-title {
+.channel-name {
     font-size: 1rem;
     font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* Truncate long names */
+    width: 100%;
 }
 
 /* meta row under name */
@@ -621,12 +623,13 @@ body.light .channel-tag.quality {
     border-radius: 999px;
     border: 1px solid rgba(148, 163, 184, 0.35);
     background: rgba(15, 23, 42, 0.96);
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     padding: 0;
     transition: all 0.18s ease;
+    margin-left: auto;
 }
 
 .channel-fav .fav-icon {

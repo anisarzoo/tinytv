@@ -99,6 +99,14 @@ export function loadStream(channel) {
     isDestroying = false;
   }
 
+  if (!channel || !channel.url) {
+    hideLoading();
+    import('../utils/storage.js').then(({ showToast }) => {
+      showToast('Channel link is missing or broken.', 'error');
+    });
+    return;
+  }
+
   if (channel.url.includes('.m3u8')) {
     if (Hls.isSupported()) {
       // OPTIMIZATION 3: Aggressive HLS config for instant loading
@@ -175,8 +183,10 @@ export function loadStream(channel) {
           hideLoading();
           switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
-              console.error('Network error, trying to recover...');
-              // Don't auto-retry - fail fast for channel switching
+              console.error('Network or CORS error:', data);
+              import('../utils/storage.js').then(({ showToast }) => {
+                showToast('Network/CORS block. Stream may be restricted.', 'error');
+              });
               break;
             case Hls.ErrorTypes.MEDIA_ERROR:
               console.error('Media error, trying to recover...');

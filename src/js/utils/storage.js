@@ -46,12 +46,14 @@ export function toggleFavorite(channel) {
             typeof channel === 'string'
                 ? { name }
                 : {
-                      name: channel.name,
-                      logo: channel.logo || '',
-                      category: channel.category || 'General',
-                      quality: channel.quality || '720p',
-                      country: channel.country || channel.region || ''
-                  };
+                    name: channel.name,
+                    url: channel.url || '',
+                    logo: channel.logo || '',
+                    category: channel.category || 'General',
+                    quality: channel.quality || '720p',
+                    country: channel.country || channel.region || '',
+                    id: channel.id || ''
+                };
         favorites.push(normalized);
         showToast('Added to favorites');
     }
