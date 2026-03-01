@@ -651,3 +651,106 @@ body.light .channel-tag.quality {
     fill: #f43f5e;
     transform: scale(1.05);
 }
+
+/* CUSTOM DROPDOWN (TIVY-SELECT) */
+.tivy-select {
+    position: relative;
+    width: 100%;
+}
+
+.tivy-select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.7rem 0.9rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text);
+    user-select: none;
+}
+
+.tivy-select:hover .tivy-select-trigger {
+    border-color: var(--highlight);
+    background: var(--accent);
+}
+
+.tivy-select.open .tivy-select-trigger {
+    border-color: var(--highlight);
+    background: var(--accent);
+    box-shadow: 0 0 0 3px var(--highlight-soft);
+}
+
+.tivy-select-trigger svg {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.3s ease;
+    stroke-width: 2.5;
+    color: var(--text-dim);
+}
+
+.tivy-select.open .tivy-select-trigger svg {
+    transform: rotate(180deg);
+    color: var(--highlight);
+}
+
+.tivy-select-options {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    z-index: 1000;
+    max-height: 250px;
+    overflow-y: auto;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(12px);
+}
+
+.tivy-select.open .tivy-select-options {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.tivy-select-option {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.9rem;
+    color: var(--text);
+}
+
+.tivy-select-option:hover {
+    background: var(--highlight-soft);
+    color: var(--highlight);
+    padding-left: 1.25rem;
+}
+
+.tivy-select-option.selected {
+    background: var(--highlight);
+    color: white;
+}
+
+.tivy-select-options::-webkit-scrollbar {
+    width: 6px;
+}
+
+.tivy-select-options::-webkit-scrollbar-thumb {
+    background: var(--border-hover);
+    border-radius: 10px;
+}
+
+.tivy-select-options::-webkit-scrollbar-thumb:hover {
+    background: var(--text-dim);
+}

@@ -260,7 +260,8 @@ export function showChannelOverlay(channel) {
   if (channelMeta) {
     const q = channel.quality;
     const qualityLabel = q >= 720 ? `${q}p` : 'SD';
-    channelMeta.textContent = `${channel.category} • ${qualityLabel}`;
+    const cat = (channel.category || 'General').split(';')[0].trim();
+    channelMeta.textContent = `${cat} • ${qualityLabel}`;
   }
 
   window.currentChannel = channel;

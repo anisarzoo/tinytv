@@ -88,7 +88,7 @@ export function renderChannelGrid(channels, onPlay) {
             <div class="channel-info">
                 <div class="channel-name">${ch.name}</div>
                 <div class="channel-meta">
-                    <span class="channel-category">${ch.category || 'General'}</span>
+                    <span class="channel-category">${(ch.category || 'General').split(';')[0].trim()}</span>
                     ${ch.quality ? `<span class="quality-badge">${ch.quality}p</span>` : ''}
                 </div>
             </div>
@@ -170,7 +170,7 @@ function renderToGrid(container, channels, onPlay, className) {
                 </div>
                 <div class="info">
                     <div class="name">${ch.name}</div>
-                    <div class="meta">${ch.category || 'General'} ${ch.quality ? `• ${ch.quality}p` : ''}</div>
+                    <div class="meta">${(ch.category || 'General').split(';')[0].trim()} ${ch.quality ? `• ${ch.quality}p` : ''}</div>
                 </div>
             `;
         } else {
@@ -183,7 +183,7 @@ function renderToGrid(container, channels, onPlay, className) {
                 <div class="channel-info">
                     <div class="channel-title">${ch.name}</div>
                     <div class="channel-meta">
-                        <span>${ch.category || 'General'}</span>
+                        <span>${(ch.category || 'General').split(';')[0].trim()}</span>
                         ${ch.quality ? `<span>${ch.quality}p</span>` : ''}
                     </div>
                 </div>
@@ -248,7 +248,7 @@ export function renderSidebarChannels(channels, onPlay) {
                     ${needsScroll ? `<span class="channel-name-inner">${ch.name}</span>` : ch.name}
                 </div>
                 <div class="channel-meta">
-                    <span>${ch.category || 'General'}</span>
+                    <span>${(ch.category || 'General').split(';')[0].trim()}</span>
                     ${ch.quality ? `<span class="quality">${ch.quality}p</span>` : ''}
                 </div>
             </div>

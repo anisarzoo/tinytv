@@ -1,6 +1,7 @@
 // src/js/components/filters.js
 
 import { isRegionalChannel, isProbablyOffline, getChannelScore } from '../utils/channelFilter.js';
+import { initAllDropdowns } from '../utils/dropdown.js';
 
 let filterCallback;
 
@@ -115,11 +116,45 @@ export function initFilters(onChange) {
   const sidebarSearchInput = document.getElementById('sidebarSearchInput');
   if (sidebarSearchInput) sidebarSearchInput.addEventListener('input', handleFilterChange);
 
+  // Initialize custom dropdowns
+  initAllDropdowns();
+
   // Update filter stats initially
   updateFilterStats();
 }
 
-function handleFilterChange() {
+function handleFilterChange(e) {
+  // Sync checkboxes if one was changed
+  if (e && e.target && e.target.type === 'checkbox') {
+    const isChecked = e.target.checked;
+    const id = e.target.id;
+
+    if (id.includes('HideRegional')) {
+      const el1 = document.getElementById('sidebarHideRegional');
+      const el2 = document.getElementById('desktopHideRegional');
+      const el3 = document.getElementById('hideRegional');
+      if (el1) el1.checked = isChecked;
+      if (el2) el2.checked = isChecked;
+      if (el3) el3.checked = isChecked;
+    }
+
+    if (id.includes('HideOffline')) {
+      const el1 = document.getElementById('sidebarHideOffline');
+      const el2 = document.getElementById('desktopHideOffline');
+      const el3 = document.getElementById('hideOffline');
+      if (el1) el1.checked = isChecked;
+      if (el2) el2.checked = isChecked;
+      if (el3) el3.checked = isChecked;
+    }
+
+    if (id.includes('FavoritesOnly')) {
+      const el1 = document.getElementById('sidebarFavoritesOnly');
+      const el2 = document.getElementById('favoritesOnly');
+      if (el1) el1.checked = isChecked;
+      if (el2) el2.checked = isChecked;
+    }
+  }
+
   if (typeof filterCallback === 'function') {
     filterCallback();
   }
@@ -143,37 +178,35 @@ export function applyFilters(channels) {
   // Category: new desktop > old desktop > sidebar
   const category = isMobile
     ? document.getElementById('sidebarCategorySelect')?.value || ''
-    : document.getElementById('desktopCategorySelect')?.value || 
-      document.getElementById('categorySelect')?.value || '';
+    : document.getElementById('desktopCategorySelect')?.value ||
+    document.getElementById('categorySelect')?.value || '';
 
   // Quality: new desktop > old desktop > sidebar
   const quality = isMobile
     ? document.getElementById('sidebarQualitySelect')?.value || 'all'
-    : document.getElementById('desktopQualitySelect')?.value || 
-      document.getElementById('qualitySelect')?.value || 'all';
+    : document.getElementById('desktopQualitySelect')?.value ||
+    document.getElementById('qualitySelect')?.value || 'all';
 
   // Sort: new desktop > old desktop > sidebar
   const sort = isMobile
     ? document.getElementById('sidebarSortSelect')?.value || 'smart'
-    : document.getElementById('desktopSortSelect')?.value || 
-      document.getElementById('sortSelect')?.value || 'smart';
+    : document.getElementById('desktopSortSelect')?.value ||
+    document.getElementById('sortSelect')?.value || 'smart';
 
-  // Hide regional: new desktop > old desktop > sidebar
-  const hideRegional = isMobile
-    ? document.getElementById('sidebarHideRegional')?.checked || false
-    : document.getElementById('desktopHideRegional')?.checked || 
-      document.getElementById('hideRegional')?.checked || false;
+  // Hide regional: new desktop > sidebar > old desktop
+  const hideRegional = document.getElementById('desktopHideRegional')?.checked ??
+    document.getElementById('sidebarHideRegional')?.checked ??
+    document.getElementById('hideRegional')?.checked ?? false;
 
-  // Hide offline: new desktop > old desktop > sidebar
-  const hideOffline = isMobile
-    ? document.getElementById('sidebarHideOffline')?.checked || false
-    : document.getElementById('desktopHideOffline')?.checked || 
-      document.getElementById('hideOffline')?.checked || false;
+  // Hide offline: new desktop > sidebar > old desktop
+  const hideOffline = document.getElementById('desktopHideOffline')?.checked ??
+    document.getElementById('sidebarHideOffline')?.checked ??
+    document.getElementById('hideOffline')?.checked ?? false;
 
-  // Favorites only (no new desktop control for this yet)
-  const favoritesOnly = isMobile
-    ? document.getElementById('sidebarFavoritesOnly')?.checked || false
-    : document.getElementById('favoritesOnly')?.checked || false;
+  // Favorites only
+  const favoritesOnly = document.getElementById('desktopFavoritesOnly')?.checked ??
+    document.getElementById('sidebarFavoritesOnly')?.checked ??
+    document.getElementById('favoritesOnly')?.checked ?? false;
 
   let filtered = [...channels];
 
@@ -187,7 +220,11 @@ export function applyFilters(channels) {
 
   // Category filter
   if (category) {
-    filtered = filtered.filter(ch => ch.category === category);
+    filtered = filtered.filter(ch => {
+      if (!ch.category) return false;
+      const cats = ch.category.split(';').map(c => c.trim());
+      return cats.includes(category);
+    });
   }
 
   // Quality filter
@@ -236,7 +273,16 @@ export function applyFilters(channels) {
 }
 
 function updateCategories(channels) {
-  const categories = [...new Set(channels.map(ch => ch.category))].sort();
+  const allCats = [];
+  channels.forEach(ch => {
+    if (ch.category) {
+      ch.category.split(';').forEach(c => {
+        const trimmed = c.trim();
+        if (trimmed) allCats.push(trimmed);
+      });
+    }
+  });
+  const categories = [...new Set(allCats)].sort();
 
   // Update OLD desktop category select
   const categorySelect = document.getElementById('categorySelect');
@@ -250,6 +296,7 @@ function updateCategories(channels) {
       categorySelect.appendChild(option);
     });
     categorySelect.value = currentValue;
+    if (categorySelect._tivyDropdown) categorySelect._tivyDropdown.update();
   }
 
   // Update NEW desktop category select (in left panel)
@@ -264,6 +311,7 @@ function updateCategories(channels) {
       desktopCategorySelect.appendChild(option);
     });
     desktopCategorySelect.value = currentValue;
+    if (desktopCategorySelect._tivyDropdown) desktopCategorySelect._tivyDropdown.update();
   }
 
   // Update sidebar category select
@@ -278,6 +326,7 @@ function updateCategories(channels) {
       sidebarCategorySelect.appendChild(option);
     });
     sidebarCategorySelect.value = currentValue;
+    if (sidebarCategorySelect._tivyDropdown) sidebarCategorySelect._tivyDropdown.update();
   }
 }
 
@@ -328,6 +377,20 @@ function updateFilterStats(count) {
 async function handleRegionChange(e) {
   const region = e.target.value;
   if (window.loadChannels) {
+    // Sync with new desktop select
+    const newDesktopSelect = document.getElementById('desktopRegionSelect');
+    if (newDesktopSelect) {
+      newDesktopSelect.value = region;
+      if (newDesktopSelect._tivyDropdown) newDesktopSelect._tivyDropdown.update();
+    }
+
+    // Sync with sidebar select
+    const sidebarSelect = document.getElementById('sidebarRegionSelect');
+    if (sidebarSelect) {
+      sidebarSelect.value = region;
+      if (sidebarSelect._tivyDropdown) sidebarSelect._tivyDropdown.update();
+    }
+
     document.getElementById('filterPanel')?.classList.remove('open');
     await window.loadChannels(region === 'ALL' ? null : region);
   }
@@ -339,11 +402,17 @@ async function handleDesktopRegionChange(e) {
   if (window.loadChannels) {
     // Sync with old desktop select if present
     const oldDesktopSelect = document.getElementById('regionSelect');
-    if (oldDesktopSelect) oldDesktopSelect.value = region;
+    if (oldDesktopSelect) {
+      oldDesktopSelect.value = region;
+      if (oldDesktopSelect._tivyDropdown) oldDesktopSelect._tivyDropdown.update();
+    }
 
     // Sync with sidebar select
     const sidebarSelect = document.getElementById('sidebarRegionSelect');
-    if (sidebarSelect) sidebarSelect.value = region;
+    if (sidebarSelect) {
+      sidebarSelect.value = region;
+      if (sidebarSelect._tivyDropdown) sidebarSelect._tivyDropdown.update();
+    }
 
     await window.loadChannels(region === 'ALL' ? null : region);
   }
@@ -354,10 +423,16 @@ async function handleSidebarRegionChange(e) {
   const region = e.target.value;
   if (window.loadChannels) {
     const desktopSelect = document.getElementById('regionSelect');
-    if (desktopSelect) desktopSelect.value = region;
+    if (desktopSelect) {
+      desktopSelect.value = region;
+      if (desktopSelect._tivyDropdown) desktopSelect._tivyDropdown.update();
+    }
 
     const newDesktopSelect = document.getElementById('desktopRegionSelect');
-    if (newDesktopSelect) newDesktopSelect.value = region;
+    if (newDesktopSelect) {
+      newDesktopSelect.value = region;
+      if (newDesktopSelect._tivyDropdown) newDesktopSelect._tivyDropdown.update();
+    }
 
     await window.loadChannels(region === 'ALL' ? null : region);
   }
