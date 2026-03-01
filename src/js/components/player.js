@@ -1,4 +1,5 @@
 let video, hls;
+let currentChannel;
 let availableLevels = [];
 let isDestroying = false;
 let userPaused = false; // Track manual pause
@@ -73,7 +74,8 @@ function setupPlayerFavOverlay() {
 }
 
 export function loadStream(channel) {
-  showLoading();
+  currentChannel = channel;
+  showLoading(channel);
 
   // Reset pause flag on new channel
   userPaused = false;
@@ -289,10 +291,39 @@ function setupBasicQualityOptions() {
   };
 }
 
-function showLoading() {
-  document.getElementById('videoLoading').style.display = 'flex';
+function showLoading(possibleChannel) {
+  const overlay = document.getElementById('videoLoading');
+  const logo = document.getElementById('loadingLogo');
+  const placeholder = document.getElementById('loadingPlaceholder');
+  const nameEl = document.getElementById('loadingChannelName');
+
+  // If called via event listener, the first argument is an Event, not the channel.
+  // We use our local currentChannel variable as a fallback.
+  const channel = (possibleChannel && typeof possibleChannel.name === 'string')
+    ? possibleChannel
+    : currentChannel;
+
+  if (channel) {
+    nameEl.textContent = channel.name;
+    if (channel.logo) {
+      logo.src = channel.logo;
+      logo.style.display = 'block';
+      placeholder.style.display = 'none';
+    } else {
+      logo.style.display = 'none';
+      placeholder.textContent = channel.name[0] || 'TV';
+      placeholder.style.display = 'flex';
+    }
+  }
+
+  overlay.style.display = 'flex';
+  overlay.style.opacity = '1';
 }
 
 function hideLoading() {
-  document.getElementById('videoLoading').style.display = 'none';
+  const overlay = document.getElementById('videoLoading');
+  overlay.style.opacity = '0';
+  setTimeout(() => {
+    overlay.style.display = 'none';
+  }, 500);
 }

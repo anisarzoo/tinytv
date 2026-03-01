@@ -648,8 +648,23 @@
 
                         <!-- Loading -->
                         <div class="video-loading" id="videoLoading">
-                            <div class="modern-spinner"></div>
-                            <p>Loading stream...</p>
+                            <div class="loading-background"></div>
+                            <div class="loading-content">
+                                <div class="loading-logo-container" id="loadingLogoContainer">
+                                    <div class="loading-spinner-rings">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
+                                    <img id="loadingLogo" src="" alt="" style="display:none"
+                                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                                    <div id="loadingPlaceholder" class="loading-placeholder" style="display:none">TV
+                                    </div>
+                                </div>
+                                <div class="loading-info">
+                                    <h3 id="loadingChannelName">Connecting</h3>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Favorites Player Overlay -->

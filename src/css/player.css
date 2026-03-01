@@ -457,26 +457,170 @@
   transition: height 0.1s linear;
 }
 
-/* Loading Spinner */
+/* Cinematic Loading Screen - Premium Tivy UX */
 .video-loading {
   position: absolute;
   inset: 0;
   display: none;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(10px);
+  z-index: 10;
   pointer-events: none;
-  z-index: 4;
-  flex-direction: column;
-  gap: 1.5rem;
+  overflow: hidden;
+  transition: opacity 0.5s ease;
 }
 
-.video-loading p {
+.loading-background {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, #0a0a0c, #050507);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px);
+}
+
+.loading-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  text-align: center;
+}
+
+/* Spinner Rings - High-end modern feel */
+.loading-logo-container {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-spinner-rings {
+  position: absolute;
+  inset: -15px;
+}
+
+.loading-spinner-rings span {
+  position: absolute;
+  inset: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  border-top-color: var(--highlight);
+  animation: loading-spin var(--duration) linear infinite;
+  opacity: 0.8;
+}
+
+.loading-spinner-rings span:nth-child(1) {
+  --duration: 1.2s;
+  border-top-color: var(--highlight);
+}
+
+.loading-spinner-rings span:nth-child(2) {
+  --duration: 0.8s;
+  inset: 12px;
+  border-top-color: #ec4899;
+}
+
+.loading-spinner-rings span:nth-child(3) {
+  --duration: 1.5s;
+  inset: 24px;
+  border-top-color: #3b82f6;
+}
+
+#loadingLogo,
+.loading-placeholder {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  object-fit: contain;
+  animation: loading-pulse 2s ease-in-out infinite;
+  z-index: 3;
+}
+
+.loading-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  font-weight: 800;
   color: white;
-  font-size: 1.1rem;
-  font-weight: 600;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.5), rgba(79, 70, 229, 0.5));
+}
+
+.loading-info h3 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 0.6rem;
+  letter-spacing: -0.5px;
+  text-shadow: 0 0 20px rgba(244, 63, 94, 0.3);
+  animation: loading-fade-in 0.8s ease-out;
+}
+
+.loading-info p {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  animation: loading-fade-in 1.2s ease-out;
+}
+
+@keyframes loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes loading-pulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+    filter: brightness(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+    filter: brightness(1.2) drop-shadow(0 0 10px rgba(244, 63, 94, 0.3));
+  }
+}
+
+@keyframes loading-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 767px) {
+  .loading-info h3 {
+    font-size: 1.3rem;
+  }
+
+  .loading-logo-container {
+    width: 100px;
+    height: 100px;
+  }
+
+  #loadingLogo,
+  .loading-placeholder {
+    width: 64px;
+    height: 64px;
+  }
 }
 
 /* Mobile Responsive - Portrait Mode */
