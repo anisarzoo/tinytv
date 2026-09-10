@@ -42,10 +42,14 @@ export function initPlayer() {
 
   // Dismiss quality menu on outside click or Escape
   document.addEventListener('click', (e) => {
-    const qualityWrapper = document.querySelector('.quality-wrapper');
-    if (qualityWrapper && !qualityWrapper.contains(e.target)) {
-      closeQualityMenu();
+    const menu = document.getElementById('qualityMenu');
+    if (!menu || !menu.classList.contains('show')) return;
+    const btnBottom = document.getElementById('qualityBtn');
+    const btnTop = document.getElementById('qualityBtnTop');
+    if (menu.contains(e.target) || (btnBottom && btnBottom.contains(e.target)) || (btnTop && btnTop.contains(e.target))) {
+      return;
     }
+    closeQualityMenu();
   });
 
   document.addEventListener('keydown', (e) => {
@@ -264,9 +268,11 @@ let currentQualityIndex = -1;
 
 export function closeQualityMenu() {
   const menu = document.getElementById('qualityMenu');
-  const btn = document.getElementById('qualityBtn');
+  const btnBottom = document.getElementById('qualityBtn');
+  const btnTop = document.getElementById('qualityBtnTop');
   if (menu) menu.classList.remove('show');
-  if (btn) btn.setAttribute('aria-expanded', 'false');
+  if (btnBottom) btnBottom.setAttribute('aria-expanded', 'false');
+  if (btnTop) btnTop.setAttribute('aria-expanded', 'false');
 }
 
 export function toggleQualityMenu(e) {
@@ -275,18 +281,21 @@ export function toggleQualityMenu(e) {
     e.preventDefault();
   }
   const menu = document.getElementById('qualityMenu');
-  const btn = document.getElementById('qualityBtn');
+  const btnBottom = document.getElementById('qualityBtn');
+  const btnTop = document.getElementById('qualityBtnTop');
   if (!menu) return;
   const isOpen = menu.classList.toggle('show');
-  if (btn) btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  if (btnBottom) btnBottom.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  if (btnTop) btnTop.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
 }
 
 function setupQualitySelector(levels) {
   const qualityBtn = document.getElementById('qualityBtn');
+  const qualityBtnTop = document.getElementById('qualityBtnTop');
   const menu = document.getElementById('qualityMenu');
   const optionsContainer = document.getElementById('qualityOptions');
 
-  if (!qualityBtn || !menu || !optionsContainer) return;
+  if (!menu || !optionsContainer) return;
 
   optionsContainer.innerHTML = '';
 
@@ -315,7 +324,9 @@ function setupQualitySelector(levels) {
         hls.currentLevel = index;
       }
       const titleLabel = isAuto ? 'Auto' : label;
-      qualityBtn.title = `Quality: ${titleLabel}`;
+      const titleText = `Quality: ${titleLabel}`;
+      if (qualityBtn) qualityBtn.title = titleText;
+      if (qualityBtnTop) qualityBtnTop.title = titleText;
       showToast(`Quality: ${titleLabel}`);
 
       optionsContainer.querySelectorAll('.quality-option-btn').forEach(b => b.classList.remove('active'));
@@ -343,16 +354,25 @@ function setupQualitySelector(levels) {
     });
   }
 
-  qualityBtn.title = currentQualityIndex === -1 ? 'Quality: Auto' : qualityBtn.title;
-  qualityBtn.onclick = toggleQualityMenu;
+  const defaultTitle = currentQualityIndex === -1 ? 'Quality: Auto' : (qualityBtn ? qualityBtn.title : 'Quality Settings');
+  if (qualityBtn) {
+    qualityBtn.title = defaultTitle;
+    qualityBtn.onclick = toggleQualityMenu;
+  }
+  if (qualityBtnTop) {
+    qualityBtnTop.title = defaultTitle;
+    qualityBtnTop.onclick = toggleQualityMenu;
+  }
 }
 
 function setupBasicQualityOptions() {
   const qualityBtn = document.getElementById('qualityBtn');
+  const qualityBtnTop = document.getElementById('qualityBtnTop');
   const optionsContainer = document.getElementById('qualityOptions');
-  if (!qualityBtn) return;
 
-  qualityBtn.title = 'Quality: Auto';
+  if (qualityBtn) qualityBtn.title = 'Quality: Auto';
+  if (qualityBtnTop) qualityBtnTop.title = 'Quality: Auto';
+
   if (optionsContainer) {
     optionsContainer.innerHTML = `
       <button class="quality-option-btn active" type="button" role="menuitem">
@@ -372,7 +392,8 @@ function setupBasicQualityOptions() {
       };
     }
   }
-  qualityBtn.onclick = toggleQualityMenu;
+  if (qualityBtn) qualityBtn.onclick = toggleQualityMenu;
+  if (qualityBtnTop) qualityBtnTop.onclick = toggleQualityMenu;
 }
 
 function showLoading(possibleChannel) {

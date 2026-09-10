@@ -616,10 +616,29 @@ body.light .sun-icon {
     height: 40px;
     border-radius: 6px;
     object-fit: contain;
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--accent);
     border: 1px solid var(--border);
     padding: 2px;
     flex-shrink: 0;
+}
+
+/* SMART IPTV LOGO CONTRAST ENGINE - Prevents transparent logos blending into dark or light backgrounds */
+body.light .channel-logo,
+body.light .channel-card img,
+body.light .sidebar-channel .channel-icon img,
+body.light .favorite-card .channel-logo img,
+body.light .player-fav-item .logo img,
+body.light #loadingLogo {
+    filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.75)) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+body:not(.light) .channel-logo,
+body:not(.light) .channel-card img,
+body:not(.light) .sidebar-channel .channel-icon img,
+body:not(.light) .favorite-card .channel-logo img,
+body:not(.light) .player-fav-item .logo img,
+body:not(.light) #loadingLogo {
+    filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 2px rgba(255, 255, 255, 0.35));
 }
 
 /* Info container */

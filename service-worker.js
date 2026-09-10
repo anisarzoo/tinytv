@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tinytv-v7';
+const CACHE_NAME = 'tinytv-v8';
 const urlsToCache = [
   './',
   'index.html',
