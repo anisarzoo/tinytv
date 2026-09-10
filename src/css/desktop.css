@@ -340,7 +340,22 @@
     }
 
     .channel-card.active .channel-name {
+        color: var(--highlight);
+        font-weight: 700;
+    }
+
+    body:not(.light) .channel-card.active .channel-name {
         color: #ffffff;
+        font-weight: 700;
+    }
+
+    body.light .channel-card.active .channel-name {
+        color: #be123c;
+        font-weight: 700;
+    }
+
+    body.light .favorite-card.active .channel-title {
+        color: #be123c;
         font-weight: 700;
     }
 
@@ -392,51 +407,61 @@
         white-space: nowrap;
     }
 
-    /* HEART BUTTON */
+    /* HEART BUTTON - Unified clean icon without bulky box */
     .channel-card .channel-fav {
-        width: 30px;
-        height: 30px;
-        min-width: 30px;
-        border-radius: 6px;
-        border: 1px solid transparent;
-        background: transparent;
-        backdrop-filter: none;
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        border-radius: 50%;
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
         display: flex !important;
         align-items: center;
         justify-content: center;
         cursor: pointer;
         padding: 0;
-        transition: background 0.15s, border-color 0.15s, transform 0.15s;
+        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
         z-index: 10;
-        margin-left: 0.25rem;
+        margin-left: auto;
         flex-shrink: 0;
     }
 
     .channel-card .channel-fav .fav-icon {
-        width: 15px;
-        height: 15px;
-        fill: transparent;
-        stroke: rgba(148, 163, 184, 0.7);
-        stroke-width: 2.2;
-        transition: transform 0.15s ease, fill 0.15s ease;
+        width: 20px;
+        height: 20px;
+        fill: none;
+        stroke: var(--text-dim, #94a3b8);
+        stroke-width: 2;
+        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), stroke 0.2s ease, fill 0.2s ease;
+    }
+
+    .channel-card .channel-fav:hover {
+        transform: scale(1.18);
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .channel-card .channel-fav:hover .fav-icon {
+        stroke: var(--highlight, #f43f5e);
     }
 
     .channel-card .channel-fav.fav-active {
-        background: rgba(244, 63, 94, 0.1);
-        border-color: rgba(244, 63, 94, 0.25);
-        box-shadow: none;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
     }
 
     .channel-card .channel-fav.fav-active .fav-icon {
         fill: #f43f5e;
         stroke: #f43f5e;
+        filter: drop-shadow(0 2px 5px rgba(244, 63, 94, 0.45));
         transform: scale(1.05);
     }
 
-    .channel-card .channel-fav:hover {
-        transform: scale(1.08);
-        background: rgba(255, 255, 255, 0.08);
-        border-color: rgba(255, 255, 255, 0.15);
+    .channel-card .channel-fav.fav-active:hover .fav-icon {
+        transform: scale(1.22);
     }
 
     /* PLAYER SECTION - FULL BLEED STUDIO DOCK */
@@ -619,32 +644,35 @@
     }
 
     .favorite-card .channel-fav {
-        width: 26px;
-        height: 26px;
-        min-width: 26px;
-        border-radius: 6px;
-        border: 1px solid transparent;
-        background: transparent;
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        border-radius: 50%;
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
         padding: 0;
-        transition: background 0.15s ease, border-color 0.15s ease;
+        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     .favorite-card .channel-fav .fav-icon {
-        width: 14px;
-        height: 14px;
+        width: 18px;
+        height: 18px;
         fill: #f43f5e;
         stroke: #f43f5e;
         stroke-width: 2;
+        filter: drop-shadow(0 2px 4px rgba(244, 63, 94, 0.45));
+        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     .favorite-card .channel-fav:hover {
-        background: rgba(255, 255, 255, 0.08);
-        border-color: rgba(255, 255, 255, 0.15);
-        transform: scale(1.08);
+        background: transparent !important;
+        border: none !important;
+        transform: scale(1.2);
     }
 
     .favorites-empty {

@@ -22,11 +22,11 @@
     <title>TinyTV - Live TV Player</title>
 
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="src/css/main.css?v=8">
-    <link rel="stylesheet" href="src/css/player.css?v=8">
-    <link rel="stylesheet" href="src/css/sidebar.css?v=8">
-    <link rel="stylesheet" href="src/css/desktop.css?v=8">
-    <link rel="stylesheet" href="src/css/mobile.css?v=8">
+    <link rel="stylesheet" href="src/css/main.css?v=17">
+    <link rel="stylesheet" href="src/css/player.css?v=17">
+    <link rel="stylesheet" href="src/css/sidebar.css?v=17">
+    <link rel="stylesheet" href="src/css/desktop.css?v=17">
+    <link rel="stylesheet" href="src/css/mobile.css?v=17">
 </head>
 
 <body>
@@ -67,31 +67,17 @@
             </div>
 
             <div class="header-actions">
-                <!-- PWA INSTALL BUTTON -->
-                <button id="installBtn" class="header-btn install-btn" style="display: none;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="7 10 12 15 17 10"></polyline>
-                        <line x1="12" y1="15" x2="12" y2="3"></line>
-                    </svg>
-                    <span class="btn-text">Install</span>
-                </button>
 
-                <button id="themeBtn" class="header-btn theme-btn">
-                    <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                <button id="themeBtn" class="header-btn theme-btn" aria-label="Toggle theme" title="Toggle theme">
+                    <!-- Dark Mode: Moon with cinema micro-sparkle -->
+                    <svg class="theme-icon moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor" fill-opacity="0.16"></path>
+                        <path d="M19 4v3m-1.5-1.5h3" stroke-width="1.8"></path>
                     </svg>
-                    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        style="display:none;">
-                        <circle cx="12" cy="12" r="5"></circle>
-                        <line x1="12" y1="1" x2="12" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="23"></line>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                        <line x1="1" y1="12" x2="3" y2="12"></line>
-                        <line x1="21" y1="12" x2="23" y2="12"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    <!-- Light Mode: Modern rounded solar icon in brand highlight -->
+                    <svg class="theme-icon sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+                        <circle cx="12" cy="12" r="4.5" fill="currentColor" fill-opacity="0.2"></circle>
+                        <path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.93 4.93l1.77 1.77M17.3 17.3l1.77 1.77M4.93 19.07l1.77-1.77M17.3 6.7l1.77-1.77"></path>
                     </svg>
                 </button>
             </div>
@@ -347,15 +333,21 @@
                                 <span id="channelMeta"></span>
                             </div>
                             <div class="top-bar-actions">
-                                <button class="control-btn quality-btn-top" id="qualityBtnTop" title="Quality Settings" aria-label="Quality Settings" aria-haspopup="true" aria-expanded="false">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="12" cy="12" r="3"></circle>
-                                        <path
-                                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-                                        </path>
-                                    </svg>
-                                </button>
+                                <!-- Quality / Settings Gear Button & Anchored Menu -->
+                                <div class="quality-wrapper quality-wrapper-top">
+                                    <button class="control-btn quality-btn-top" id="qualityBtn" title="Quality Settings" aria-label="Quality Settings" aria-haspopup="true" aria-expanded="false">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                            <path
+                                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                                            </path>
+                                        </svg>
+                                    </button>
+                                    <div id="qualityMenu" class="quality-menu" role="menu">
+                                        <div id="qualityOptions" class="quality-options"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -442,22 +434,7 @@
                                         </svg>
                                     </button>
 
-                                    <!-- Quality / Settings Gear Button & Anchored Menu -->
-                                    <div class="quality-wrapper quality-wrapper-bottom">
-                                        <button class="control-btn" id="qualityBtn" title="Quality Settings" aria-label="Quality Settings" aria-haspopup="true" aria-expanded="false">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                stroke-linecap="round" stroke-linejoin="round">
-                                                <circle cx="12" cy="12" r="3"></circle>
-                                                <path
-                                                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-                                                </path>
-                                            </svg>
-                                        </button>
-                                        <div id="qualityMenu" class="quality-menu" role="menu">
-                                            <div class="quality-menu-header">Quality</div>
-                                            <div id="qualityOptions" class="quality-options"></div>
-                                        </div>
-                                    </div>
+
 
                                     <button class="control-btn" onclick="window.toggleFullscreen()" title="Fullscreen">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -565,31 +542,59 @@
     <!-- Toast -->
     <div id="toast" class="toast"></div>
 
+    <!-- PWA Install Banner -->
+    <div id="installBanner" class="install-banner" style="display: none;">
+        <div class="install-banner-content">
+            <svg class="install-banner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+                <polyline points="17 2 12 7 7 2"></polyline>
+            </svg>
+            <div class="install-banner-text">
+                <strong>Install TinyTV</strong>
+                <span>Add to home screen for quick access</span>
+            </div>
+        </div>
+        <div class="install-banner-actions">
+            <button id="installBannerBtn" class="install-banner-install">Install</button>
+            <button id="installBannerClose" class="install-banner-close">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+    </div>
 
 
     <!-- Scripts -->
     <script defer src="https://cdn.jsdelivr.net/npm/hls.js@1" crossorigin></script>
-    <script type="module" src="./src/js/main.js"></script>
+    <script type="module" src="./src/js/main.js?v=17"></script>
 
     <script>
         // PWA Install Logic
         let deferredPrompt = null;
-        const installBtn = document.getElementById('installBtn');
+        const installBanner = document.getElementById('installBanner');
+        const installBannerBtn = document.getElementById('installBannerBtn');
+        const installBannerClose = document.getElementById('installBannerClose');
 
-        installBtn.style.display = 'none';
+        const isInstallDismissed = localStorage.getItem('pwa_install_dismissed') === 'true';
+
+        installBanner.style.display = 'none';
 
         if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-            installBtn.style.display = 'none';
+            installBanner.style.display = 'none';
         }
 
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            installBtn.style.display = 'flex';
+            if (!isInstallDismissed) {
+                installBanner.style.display = 'flex';
+            }
             console.log('PWA Install available');
         });
 
-        installBtn.addEventListener('click', async () => {
+        installBannerBtn.addEventListener('click', async () => {
             if (!deferredPrompt) return;
 
             deferredPrompt.prompt();
@@ -597,7 +602,7 @@
 
             if (outcome === 'accepted') {
                 console.log('User installed PWA');
-                installBtn.style.display = 'none';
+                installBanner.style.display = 'none';
             } else {
                 console.log('User dismissed install');
             }
@@ -605,9 +610,14 @@
             deferredPrompt = null;
         });
 
+        installBannerClose.addEventListener('click', () => {
+            installBanner.style.display = 'none';
+            localStorage.setItem('pwa_install_dismissed', 'true');
+        });
+
         window.addEventListener('appinstalled', () => {
             console.log('TinyTV installed!');
-            installBtn.style.display = 'none';
+            installBanner.style.display = 'none';
             deferredPrompt = null;
         });
     </script>

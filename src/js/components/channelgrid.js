@@ -140,8 +140,10 @@ function createChannelCard(ch, idx, onPlay) {
     const favorite = isFavorite(ch.name);
 
     card.innerHTML = `
-        <img class="channel-logo" loading="lazy" src="${logoUrl}" alt="${ch.name}" style="${hasLogo ? '' : 'display:none'}" onerror="window.handleImageError(this)">
-        <div class="channel-placeholder" style="${hasLogo ? 'display:none' : 'display:flex'}">${ch.name?.[0] || 'TV'}</div>
+        <div class="channel-logo-container">
+            <img class="channel-logo-img" loading="lazy" src="${logoUrl}" alt="${ch.name}" style="${hasLogo ? '' : 'display:none'}" onerror="window.handleImageError(this)">
+            <div class="channel-placeholder" style="${hasLogo ? 'display:none' : 'display:flex'}">${ch.name?.[0] || 'TV'}</div>
+        </div>
         <div class="channel-info">
             <div class="channel-name">${ch.name}</div>
             <div class="channel-meta">

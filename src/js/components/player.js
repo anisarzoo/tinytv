@@ -25,6 +25,19 @@ export function initPlayer() {
   video.addEventListener('waiting', showLoading);
   video.addEventListener('canplay', hideLoading);
 
+  // Update quality options as soon as stream video dimensions become available
+  video.addEventListener('loadedmetadata', () => {
+    if (availableLevels && availableLevels.length <= 1) {
+      setupQualitySelector(availableLevels);
+    }
+  });
+
+  video.addEventListener('resize', () => {
+    if (availableLevels && availableLevels.length <= 1) {
+      setupQualitySelector(availableLevels);
+    }
+  });
+
   video.addEventListener('error', () => {
     hideLoading();
     showToast('Stream error. Try another channel.', 'error');
@@ -41,6 +54,19 @@ export function initPlayer() {
   setupPlayerFavOverlay();
 
   // Dismiss quality menu on outside click or Escape
+  const qualityMenuEl = document.getElementById('qualityMenu');
+  if (qualityMenuEl) {
+    qualityMenuEl.addEventListener('touchstart', (e) => {
+      e.stopPropagation();
+    }, { passive: true });
+    qualityMenuEl.addEventListener('touchmove', (e) => {
+      e.stopPropagation();
+    }, { passive: true });
+    qualityMenuEl.addEventListener('wheel', (e) => {
+      e.stopPropagation();
+    }, { passive: true });
+  }
+
   document.addEventListener('click', (e) => {
     const menu = document.getElementById('qualityMenu');
     if (!menu || !menu.classList.contains('show')) return;
@@ -191,8 +217,8 @@ export function loadStream(channel) {
       });
 
       hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
-        availableLevels = data.levels;
-        setupQualitySelector(data.levels);
+        availableLevels = data.levels || [];
+        setupQualitySelector(availableLevels);
 
         // Force play immediately
         const playPromise = video.play();
@@ -202,6 +228,15 @@ export function loadStream(channel) {
               console.log('Play prevented:', err);
             }
           });
+        }
+      });
+
+      hls.on(Hls.Events.LEVEL_LOADED, () => {
+        if (hls && hls.levels && hls.levels.length > 0) {
+          availableLevels = hls.levels;
+          if (availableLevels.length <= 1) {
+            setupQualitySelector(availableLevels);
+          }
         }
       });
 
@@ -287,6 +322,66 @@ export function toggleQualityMenu(e) {
   const isOpen = menu.classList.toggle('show');
   if (btnBottom) btnBottom.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
   if (btnTop) btnTop.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  if (isOpen) {
+    const activeBtn = menu.querySelector('.quality-option-btn.active');
+    if (activeBtn) {
+      activeBtn.scrollIntoView({ block: 'nearest' });
+    }
+  }
+}
+
+function getLevelDetails(lvl, originalIndex, totalLevels) {
+  let height = (lvl && lvl.height) ? lvl.height : 0;
+
+  // 1. Check attrs.RESOLUTION (e.g. "1280x720")
+  if (!height && lvl && lvl.attrs && lvl.attrs.RESOLUTION) {
+    const parts = String(lvl.attrs.RESOLUTION).toLowerCase().split('x');
+    if (parts.length === 2) {
+      const parsed = parseInt(parts[1], 10);
+      if (!isNaN(parsed) && parsed > 0) height = parsed;
+    }
+  }
+
+  // 2. Check lvl.name (e.g. "720p", "1080p")
+  if (!height && lvl && lvl.name) {
+    const match = String(lvl.name).match(/(\d{3,4})p?/i);
+    if (match) {
+      const parsed = parseInt(match[1], 10);
+      if (!isNaN(parsed) && parsed > 0) height = parsed;
+    }
+  }
+
+  // 3. Check HTML5 video element dimensions if height is still 0
+  if (!height && video && video.videoHeight > 0 && totalLevels <= 1) {
+    height = video.videoHeight;
+  }
+
+  if (height > 0) {
+    return {
+      height,
+      label: `${height}p`,
+      badge: height >= 720 ? 'HD' : ''
+    };
+  }
+
+  // 4. Bitrate estimation fallback if available
+  if (lvl && lvl.bitrate && lvl.bitrate > 0) {
+    const kbps = Math.round(lvl.bitrate / 1000);
+    if (kbps >= 3500) return { height: 1080, label: '1080p', badge: 'HD' };
+    if (kbps >= 2000) return { height: 720, label: '720p', badge: 'HD' };
+    if (kbps >= 800) return { height: 480, label: '480p', badge: '' };
+    return { height: 0, label: `${kbps} kbps`, badge: '' };
+  }
+
+  // 5. If multiple levels exist without resolution metadata
+  if (totalLevels > 1) {
+    const tierNames = ['High Quality', 'Medium Quality', 'Standard Quality', 'Low Quality'];
+    const label = tierNames[originalIndex] || `Option ${originalIndex + 1}`;
+    return { height: 0, label, badge: originalIndex === 0 ? 'HQ' : '' };
+  }
+
+  // 6. Single stream with unknown metadata
+  return { height: 0, label: 'Source', badge: '' };
 }
 
 function setupQualitySelector(levels) {
@@ -309,7 +404,7 @@ function setupQualitySelector(levels) {
 
     btn.innerHTML = `
       <span class="quality-option-check">
-        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+        <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="20 6 9 17 4 12"></polyline>
         </svg>
       </span>
@@ -338,20 +433,28 @@ function setupQualitySelector(levels) {
     optionsContainer.appendChild(btn);
   };
 
-  // Add Auto option at top
+  // Always show "Auto" as first option
   renderOption('Auto', -1, true);
 
-  // Add quality levels sorted descending by height (1080p, 720p, etc.)
-  if (levels && levels.length > 0) {
-    const mapped = levels.map((lvl, idx) => ({ lvl, originalIndex: idx }));
-    mapped.sort((a, b) => (b.lvl.height || 0) - (a.lvl.height || 0));
+  const validLevels = (levels && levels.length > 0) ? levels : [];
 
-    mapped.forEach(({ lvl, originalIndex }) => {
-      const height = lvl.height;
-      const resLabel = height ? `${height}p` : `Level ${originalIndex + 1}`;
-      const badge = (height >= 720) ? 'HD' : '';
-      renderOption(resLabel, originalIndex, false, badge);
+  if (validLevels.length > 0) {
+    // Map and sort levels descending by height / bitrate
+    const mapped = validLevels.map((lvl, idx) => ({
+      lvl,
+      originalIndex: idx,
+      details: getLevelDetails(lvl, idx, validLevels.length)
+    }));
+
+    mapped.sort((a, b) => (b.details.height || b.lvl.bitrate || 0) - (a.details.height || a.lvl.bitrate || 0));
+
+    mapped.forEach(({ originalIndex, details }) => {
+      renderOption(details.label, originalIndex, false, details.badge);
     });
+  } else {
+    // If no levels manifest yet, show detected video resolution
+    const h = (video && video.videoHeight > 0) ? video.videoHeight : 1080;
+    renderOption(`${h}p`, 0, false, h >= 720 ? 'HD' : '');
   }
 
   const defaultTitle = currentQualityIndex === -1 ? 'Quality: Auto' : (qualityBtn ? qualityBtn.title : 'Quality Settings');
@@ -374,23 +477,30 @@ function setupBasicQualityOptions() {
   if (qualityBtnTop) qualityBtnTop.title = 'Quality: Auto';
 
   if (optionsContainer) {
+    const height = (video && video.videoHeight > 0) ? `${video.videoHeight}p` : '1080p';
+    const isHD = !video || video.videoHeight >= 720;
     optionsContainer.innerHTML = `
       <button class="quality-option-btn active" type="button" role="menuitem">
         <span class="quality-option-check">
-          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
         </span>
-        <span class="quality-option-label">Auto (Stream Default)</span>
+        <span class="quality-option-label">Auto</span>
+      </button>
+      <button class="quality-option-btn" type="button" role="menuitem">
+        <span class="quality-option-check">
+          <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </span>
+        <span class="quality-option-label">${height}</span>
+        ${isHD ? '<span class="quality-option-badge">HD</span>' : ''}
       </button>
     `;
-    const singleBtn = optionsContainer.querySelector('.quality-option-btn');
-    if (singleBtn) {
-      singleBtn.onclick = (e) => {
-        e.stopPropagation();
-        closeQualityMenu();
-      };
-    }
+    const btns = optionsContainer.querySelectorAll('.quality-option-btn');
+    if (btns[0]) btns[0].onclick = (e) => { e.stopPropagation(); closeQualityMenu(); };
+    if (btns[1]) btns[1].onclick = (e) => { e.stopPropagation(); closeQualityMenu(); };
   }
   if (qualityBtn) qualityBtn.onclick = toggleQualityMenu;
   if (qualityBtnTop) qualityBtnTop.onclick = toggleQualityMenu;

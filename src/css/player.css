@@ -13,7 +13,7 @@
   flex: 1;
   background: #000;
   overflow: hidden;
-  touch-action: none;
+  touch-action: manipulation;
   border-radius: 0;
 }
 
@@ -52,23 +52,20 @@
 .center-play-btn button {
   width: 72px;
   height: 72px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
+  background: transparent;
+  border: none;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6));
 }
 
 .center-play-btn button:hover {
-  background: rgba(255, 255, 255, 0.25);
   transform: scale(1.1);
-  border-color: rgba(255, 255, 255, 0.4);
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.8));
 }
 
 .center-play-btn svg {
@@ -103,7 +100,7 @@
   transform: translateY(-16px);
   transition: all 0.3s ease;
   pointer-events: none;
-  z-index: 2;
+  z-index: 10;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -113,7 +110,6 @@
 .top-bar.show {
   opacity: 1;
   transform: translateY(0);
-  pointer-events: auto;
 }
 
 .top-bar-actions {
@@ -121,32 +117,37 @@
   align-items: center;
   gap: 0.5rem;
   flex-shrink: 0;
+  pointer-events: auto;
+}
+
+.channel-info-top {
+  pointer-events: auto;
 }
 
 .quality-btn-top {
   width: 40px;
   height: 40px;
-  border-radius: 50%;
-  background: rgba(15, 17, 24, 0.4);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  border: none;
   color: #ffffff;
-  display: none; /* hidden on desktop by default */
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
 }
 
-.quality-btn-top:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.25);
-  transform: scale(1.05);
+.quality-btn-top:hover,
+.quality-btn-top:active {
+  background: transparent;
+  transform: scale(1.1);
+  opacity: 0.85;
 }
 
 .quality-btn-top svg {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
 }
 
 .channel-info-top h2 {
@@ -154,14 +155,14 @@
   margin-bottom: 0.4rem;
   color: white;
   font-weight: 700;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 0 4px rgba(0, 0, 0, 0.8);
 }
 
 .channel-info-top span {
   font-size: 0.95rem;
   color: rgba(255, 255, 255, 0.9);
-  font-weight: 500;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  font-weight: 600;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9), 0 0 3px rgba(0, 0, 0, 0.8);
 }
 
 /* Bottom Bar */
@@ -276,18 +277,19 @@
   height: 40px;
   cursor: pointer;
   border-radius: 6px;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: transform 0.15s ease, color 0.15s ease;
   pointer-events: auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 0;
   position: relative;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
 }
 
 .control-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  transform: none;
+  color: #ffffff;
+  transform: scale(1.1);
 }
 
 .control-btn:active {
@@ -307,13 +309,12 @@
   min-width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: transparent;
+  border: none;
 }
 
 .control-btn-primary:hover {
-  background: rgba(255, 255, 255, 0.24);
-  border-color: rgba(255, 255, 255, 0.35);
+  transform: scale(1.1);
 }
 
 /* Favorite button */
@@ -705,15 +706,6 @@
     margin-bottom: 0.55rem;
   }
 
-  /* Symmetrical Player Layout with Top-Right Settings & Left Mute Button */
-  .quality-btn-top {
-    display: inline-flex !important;
-  }
-
-  .quality-wrapper-bottom {
-    display: none !important;
-  }
-
   .video-controls {
     display: flex;
     justify-content: space-between;
@@ -730,24 +722,25 @@
     z-index: 2;
   }
 
-  /* Show volume control with mute button on portrait, hide slider to keep it ultra-clean */
+  /* Show volume control and slider in portrait */
   .volume-control {
     display: flex !important;
-    padding: 0 !important;
+    padding: 0 0.2rem !important;
     background: transparent !important;
     border: none !important;
   }
 
   .volume-slider {
-    display: none !important;
+    display: block !important;
+    width: 60px !important; /* Smaller width for portrait space */
   }
 
   #muteBtn {
     display: inline-flex !important;
     width: 36px;
     height: 36px;
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 50%;
+    background: transparent;
+    border: none;
     align-items: center;
     justify-content: center;
     color: #ffffff;
@@ -1085,7 +1078,7 @@
   }
 }
 
-/* Quality Popover Menu - Anchored to Gear Button */
+/* Quality Popover Menu - Anchored to Left of Gear Button */
 .quality-wrapper {
   position: relative;
   display: inline-flex;
@@ -1094,106 +1087,93 @@
 
 .quality-menu {
   position: absolute;
-  bottom: calc(100% + 12px);
-  right: 0;
-  width: 190px;
-  background: rgba(15, 17, 24, 0.96);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  top: 0;
+  bottom: auto;
+  right: calc(100% + 4px); /* Placed to the left of settings button, very close to it */
+  min-width: 105px;
+  width: max-content;
+  max-width: 155px;
+  max-height: min(340px, calc(100vh - 120px));
+  background: #141518;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  padding: 0.35rem;
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  padding: 0.25rem 0;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.75);
   z-index: 200;
   display: none;
   flex-direction: column;
   pointer-events: auto;
-  transform-origin: bottom right;
-  animation: qualityPop 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  touch-action: pan-y !important;
+  transform-origin: right top;
+  animation: qualityPopLeft 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
 }
 
 .quality-menu.show {
   display: flex;
 }
 
-@media (max-width: 767px) and (orientation: portrait) {
-  .quality-menu {
-    position: fixed;
-    top: 54px;
-    right: 12px;
-    bottom: auto;
-    transform-origin: top right;
-    animation: qualityPopDown 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-    z-index: 1000;
-  }
-}
-
-@keyframes qualityPopDown {
+@keyframes qualityPopLeft {
   from {
     opacity: 0;
-    transform: translateY(-6px) scale(0.96);
+    transform: translateX(6px) scale(0.96);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateX(0) scale(1);
   }
-}
-
-@keyframes qualityPop {
-  from {
-    opacity: 0;
-    transform: translateY(6px) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.quality-menu-header {
-  font-size: 0.68rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-dim, #94a3b8);
-  padding: 0.4rem 0.6rem 0.35rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  margin-bottom: 0.25rem;
 }
 
 .quality-options {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  max-height: 220px;
-  overflow-y: auto;
+  gap: 0;
+  max-height: min(330px, calc(100vh - 130px));
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-y !important;
+  overscroll-behavior-y: contain;
+  padding: 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.45) rgba(255, 255, 255, 0.08);
 }
 
 .quality-options::-webkit-scrollbar {
-  width: 4px;
+  width: 5px;
+}
+
+.quality-options::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
 }
 
 .quality-options::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.45);
   border-radius: 4px;
 }
 
 .quality-option-btn {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.45rem;
   width: 100%;
-  padding: 0.45rem 0.6rem;
-  border-radius: 5px;
+  padding: 0.35rem 0.65rem;
+  border-radius: 0;
   background: transparent;
   border: none;
-  color: #e2e8f0;
-  font-size: 0.82rem;
-  font-weight: 500;
+  color: #cbd5e1;
+  font-size: 0.78rem;
+  font-weight: 400;
   cursor: pointer;
   text-align: left;
   transition: background 0.12s ease, color 0.12s ease;
   user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  line-height: 1.25;
+  white-space: nowrap;
+  touch-action: pan-y !important;
 }
 
 .quality-option-btn:hover {
@@ -1202,14 +1182,14 @@
 }
 
 .quality-option-btn.active {
-  background: rgba(244, 63, 94, 0.14);
-  color: var(--highlight, #f43f5e);
-  font-weight: 600;
+  background: rgba(244, 63, 94, 0.16);
+  color: #f43f5e;
+  font-weight: 500;
 }
 
 .quality-option-check {
-  width: 14px;
-  height: 14px;
+  width: 11px;
+  height: 11px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1225,14 +1205,15 @@
 
 .quality-option-label {
   flex: 1;
+  white-space: nowrap;
 }
 
 .quality-option-badge {
-  font-size: 0.65rem;
-  padding: 0.1rem 0.35rem;
+  font-size: 0.55rem;
+  padding: 0.08rem 0.3rem;
   border-radius: 3px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #cbd5e1;
-  font-weight: 600;
+  background: #252830;
+  color: #94a3b8;
+  font-weight: 700;
   letter-spacing: 0.02em;
 }
