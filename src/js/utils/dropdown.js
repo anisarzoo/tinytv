@@ -59,11 +59,17 @@ export class TivyDropdown {
     renderOptions() {
         this.optionsList.innerHTML = '';
         Array.from(this.select.options).forEach((opt, index) => {
+            // Do not repeat the currently selected option in the list
+            if (index === this.select.selectedIndex) return;
+
             const optionDiv = document.createElement('div');
-            optionDiv.className = `tivy-select-option ${index === this.select.selectedIndex ? 'selected' : ''}`;
-            optionDiv.textContent = opt.text;
+            optionDiv.className = 'tivy-select-option';
             optionDiv.dataset.value = opt.value;
             optionDiv.dataset.index = index;
+
+            optionDiv.innerHTML = `
+                <span class="tivy-select-option-label">${opt.text}</span>
+            `;
 
             optionDiv.addEventListener('click', () => this.selectOption(index));
             this.optionsList.appendChild(optionDiv);
@@ -75,6 +81,9 @@ export class TivyDropdown {
     }
 
     open() {
+        // Ensure options list reflects current selection without repeating it
+        this.renderOptions();
+
         // Close other open dropdowns first
         document.querySelectorAll('.tivy-select.open').forEach(el => {
             if (el !== this.container) el.classList.remove('open');
@@ -92,13 +101,11 @@ export class TivyDropdown {
     selectOption(index) {
         this.select.selectedIndex = index;
 
-        // Update UI
+        // Update UI trigger label
         this.trigger.querySelector('.tivy-select-label').textContent = this.select.options[index].text;
 
-        // Update selected class
-        this.optionsList.querySelectorAll('.tivy-select-option').forEach((el, i) => {
-            el.classList.toggle('selected', i === index);
-        });
+        // Re-render so the new selected option is excluded from the list next time
+        this.renderOptions();
 
         this.close();
 

@@ -54,13 +54,13 @@
     .desktop-search-input {
         flex: 1;
         min-width: 0;
-        height: 34px;
-        padding: 0 0.6rem 0 32px;
+        height: 32px;
+        padding: 0 0.6rem 0 30px;
         background: var(--card-bg);
         border: 1px solid var(--border);
         border-radius: 6px;
         color: var(--text);
-        font-size: 0.84rem;
+        font-size: 0.82rem;
         transition: border-color 0.2s, box-shadow 0.2s;
     }
 
@@ -72,9 +72,9 @@
 
     /* Filter Icon Button (Integrated into Search Bar) */
     .desktop-filter-icon-btn {
-        width: 34px;
-        height: 34px;
-        min-width: 34px;
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
         border-radius: 6px;
         background: var(--card-bg);
         border: 1px solid var(--border);
@@ -89,14 +89,14 @@
     }
 
     .desktop-filter-icon-btn svg {
-        width: 15px;
-        height: 15px;
+        width: 14px;
+        height: 14px;
         stroke-width: 2.2;
     }
 
     .desktop-filter-icon-btn:hover {
-        background: rgba(255, 255, 255, 0.08);
-        border-color: rgba(255, 255, 255, 0.18);
+        background: var(--card-hover);
+        border-color: var(--border-hover);
         color: var(--text);
     }
 
@@ -140,23 +140,23 @@
 
     .desktop-filter-group label {
         display: block;
-        font-size: 0.7rem;
+        font-size: 0.66rem;
         font-weight: 600;
         color: var(--text-dim);
         text-transform: uppercase;
         letter-spacing: 0.04em;
-        margin-bottom: 0.3rem;
+        margin-bottom: 0.22rem;
     }
 
     .desktop-filter-select {
         width: 100%;
-        height: 34px;
+        height: 32px;
         padding: 0 0.6rem;
         background: var(--card-bg);
         border: 1px solid var(--border);
         border-radius: 6px;
         color: var(--text);
-        font-size: 0.82rem;
+        font-size: 0.8rem;
         cursor: pointer;
         transition: border-color 0.2s;
         white-space: nowrap;
@@ -180,35 +180,37 @@
     .desktop-toggle-option {
         display: flex;
         align-items: center;
-        gap: 0.6rem;
-        padding: 0.5rem 0.65rem;
+        gap: 0.5rem;
+        padding: 0.35rem 0.55rem;
+        height: 30px;
         background: var(--card-bg);
         border: 1px solid var(--border);
         border-radius: 6px;
         cursor: pointer;
-        font-size: 0.8rem;
+        font-size: 0.74rem;
         color: var(--text-dim);
         transition: background 0.15s, border-color 0.15s, color 0.15s;
     }
 
     .desktop-toggle-option:hover {
-        background: rgba(255, 255, 255, 0.04);
-        border-color: rgba(255, 255, 255, 0.1);
+        background: var(--card-hover);
+        border-color: var(--border-hover);
         color: var(--text);
     }
 
     .desktop-toggle-option input[type="checkbox"] {
-        width: 15px;
-        height: 15px;
+        width: 13px;
+        height: 13px;
         cursor: pointer;
         accent-color: var(--highlight);
+        margin: 0;
     }
 
     .desktop-stats {
         display: flex;
         gap: 0.4rem;
         padding: 0.5rem 0.85rem;
-        background: rgba(0, 0, 0, 0.25);
+        background: var(--accent);
         border-top: 1px solid var(--border);
     }
 
@@ -258,7 +260,7 @@
     }
 
     .channel-grid::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--scrollbar-thumb);
         border-radius: 4px;
     }
 
@@ -283,9 +285,9 @@
     }
 
     .channel-card:hover {
-        border-color: rgba(255, 255, 255, 0.08);
+        border-color: var(--border-hover);
         transform: none;
-        background: rgba(255, 255, 255, 0.04);
+        background: var(--card-hover);
         box-shadow: none;
     }
 
@@ -303,7 +305,7 @@
         height: 42px;
         border-radius: 6px;
         object-fit: contain;
-        background: rgba(255, 255, 255, 0.04);
+        background: var(--accent);
         flex-shrink: 0;
         border: 1px solid var(--border);
         padding: 2px;
@@ -316,7 +318,7 @@
         font-size: 0.9rem;
         font-weight: 700;
         color: var(--text-dim);
-        background: rgba(255, 255, 255, 0.04);
+        background: var(--accent);
     }
 
     .channel-info {
@@ -668,8 +670,12 @@
     .desktop-filters-content.open {
         display: grid !important;
         grid-template-columns: 1fr 1fr !important;
-        gap: 0.5rem !important;
-        padding: 0.75rem !important;
+        gap: 0.45rem !important;
+        padding: 0.65rem 0.75rem !important;
+    }
+
+    .desktop-filters-content.open .desktop-filter-group {
+        padding: 0 !important;
     }
 
     .desktop-filter-toggles,
@@ -680,20 +686,21 @@
     .desktop-filter-toggles {
         display: grid !important;
         grid-template-columns: 1fr 1fr !important;
-        gap: 0.5rem !important;
+        gap: 0.45rem !important;
+        padding: 0.2rem 0 0 !important;
     }
 
     .desktop-toggle-option:hover {
-        background: rgba(255, 255, 255, 0.06) !important;
-        color: #ffffff !important;
+        background: var(--card-hover) !important;
+        color: var(--text) !important;
         transform: none !important;
         box-shadow: none !important;
-        border-color: rgba(255, 255, 255, 0.12) !important;
+        border-color: var(--border-hover) !important;
     }
 
     .desktop-toggle-option.active {
         background: rgba(244, 63, 94, 0.12) !important;
-        color: #ffffff !important;
+        color: var(--text) !important;
         border-color: rgba(244, 63, 94, 0.35) !important;
     }
 }

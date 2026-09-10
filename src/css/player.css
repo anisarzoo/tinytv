@@ -660,42 +660,74 @@
   }
 
   .bottom-bar {
-    padding: 0.7rem 1rem 0.9rem;
+    padding: 0.5rem 0.75rem 0.75rem;
   }
 
   .progress-bar {
-    margin-bottom: 0.8rem;
+    margin-bottom: 0.55rem;
   }
 
+  /* NO OVERLAPPING: Flex distribution instead of absolute centering */
   .video-controls {
-    gap: 0.4rem;
-  }
-
-  .controls-left,
-  .controls-right {
-    gap: 0.35rem;
-  }
-
-  .control-btn {
-    width: 40px;
-    min-width: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    width: 100%;
     height: 40px;
   }
 
+  .controls-left {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+  }
+
+  .controls-center {
+    position: static;
+    transform: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    flex: 1;
+    pointer-events: auto;
+  }
+
+  .controls-right {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.2rem;
+  }
+
+  .control-btn {
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
+  }
+
   .control-btn svg {
-    width: 16px;
-    height: 16px;
+    width: 17px;
+    height: 17px;
+  }
+
+  .control-btn-primary {
+    width: 38px;
+    min-width: 38px;
+    height: 38px;
   }
 
   #favBtn .fav-icon {
-    width: 22px;
-    height: 22px;
+    width: 19px;
+    height: 19px;
   }
 
-  .control-btn-pill {
-    min-width: 60px;
-    padding: 0 0.85rem;
-    font-size: 0.8rem;
+  /* Hide redundant overlay button on mobile portrait because favorites list is directly below player */
+  #playerFavMenuBtn {
+    display: none !important;
   }
 
   /* HIDE volume in portrait - use device buttons */
@@ -704,13 +736,13 @@
   }
 
   .center-play-btn button {
-    width: 56px;
-    height: 56px;
+    width: 52px;
+    height: 52px;
   }
 
   .center-play-btn svg {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
   }
 
   .indicator.left {
@@ -750,18 +782,42 @@
   }
 
   .video-controls {
-    gap: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    width: 100%;
   }
 
-  .controls-left,
+  .controls-left {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .controls-center {
+    position: static;
+    transform: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    flex: 1;
+  }
+
   .controls-right {
-    gap: 0.4rem;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.25rem;
   }
 
   .control-btn {
-    width: 38px;
-    min-width: 38px;
-    height: 38px;
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
   }
 
   .control-btn svg {
@@ -770,8 +826,8 @@
   }
 
   #favBtn .fav-icon {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
   }
 
   .control-btn-pill {
@@ -960,4 +1016,133 @@
   .player-fav-overlay {
     width: 85%;
   }
+}
+
+/* Quality Popover Menu - Anchored to Gear Button */
+.quality-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.quality-menu {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  right: 0;
+  width: 190px;
+  background: rgba(15, 17, 24, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 0.35rem;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  z-index: 200;
+  display: none;
+  flex-direction: column;
+  pointer-events: auto;
+  transform-origin: bottom right;
+  animation: qualityPop 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.quality-menu.show {
+  display: flex;
+}
+
+@keyframes qualityPop {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.quality-menu-header {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim, #94a3b8);
+  padding: 0.4rem 0.6rem 0.35rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 0.25rem;
+}
+
+.quality-options {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.quality-options::-webkit-scrollbar {
+  width: 4px;
+}
+
+.quality-options::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.quality-option-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  border-radius: 5px;
+  background: transparent;
+  border: none;
+  color: #e2e8f0;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s ease, color 0.12s ease;
+  user-select: none;
+}
+
+.quality-option-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.quality-option-btn.active {
+  background: rgba(244, 63, 94, 0.14);
+  color: var(--highlight, #f43f5e);
+  font-weight: 600;
+}
+
+.quality-option-check {
+  width: 14px;
+  height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--highlight, #f43f5e);
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.quality-option-btn.active .quality-option-check {
+  opacity: 1;
+}
+
+.quality-option-label {
+  flex: 1;
+}
+
+.quality-option-badge {
+  font-size: 0.65rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }

@@ -76,8 +76,8 @@
 }
 
 .sidebar-channel:hover {
-  border-color: rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--border-hover);
+  background: var(--card-hover);
   transform: none;
 }
 
@@ -94,7 +94,7 @@
   border-radius: 6px;
   overflow: hidden;
   flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -127,6 +127,7 @@
   text-overflow: ellipsis;
   /* Truncate instead of potentially pushing button */
   position: relative;
+  color: var(--text);
 }
 
 .sidebar-channel .channel-name-inner {
@@ -162,9 +163,9 @@
   font-size: 0.72rem;
   padding: 0.2rem 0.5rem;
   border-radius: 999px;
-  background: rgba(244, 63, 94, 0.18);
-  color: #fecaca;
-  border: 1px solid rgba(244, 63, 94, 0.3);
+  background: var(--highlight-soft);
+  color: var(--highlight);
+  border: 1px solid rgba(244, 63, 94, 0.25);
   flex-shrink: 0;
   font-weight: 600;
 }
@@ -175,8 +176,8 @@
   height: 30px;
   min-width: 30px;
   border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.4);
-  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid var(--border);
+  background: var(--card-bg);
   display: flex;
   align-items: center;
   justify-content: center;

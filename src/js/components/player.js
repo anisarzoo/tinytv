@@ -39,6 +39,20 @@ export function initPlayer() {
   setupBasicQualityOptions();
 
   setupPlayerFavOverlay();
+
+  // Dismiss quality menu on outside click or Escape
+  document.addEventListener('click', (e) => {
+    const qualityWrapper = document.querySelector('.quality-wrapper');
+    if (qualityWrapper && !qualityWrapper.contains(e.target)) {
+      closeQualityMenu();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeQualityMenu();
+    }
+  });
 }
 
 function setupPlayerFavOverlay() {
@@ -82,8 +96,10 @@ export function loadStream(channel) {
   currentChannel = channel;
   showLoading(channel);
 
-  // Reset pause flag on new channel
+  // Reset pause flag on new channel and close quality popover
   userPaused = false;
+  currentQualityIndex = -1;
+  closeQualityMenu();
 
   // OPTIMIZATION 1: Abort previous video load immediately
   if (video && !video.paused) {
@@ -244,62 +260,119 @@ export function seekVideo(seconds) {
   if (video) video.currentTime += seconds;
 }
 
+let currentQualityIndex = -1;
+
+export function closeQualityMenu() {
+  const menu = document.getElementById('qualityMenu');
+  const btn = document.getElementById('qualityBtn');
+  if (menu) menu.classList.remove('show');
+  if (btn) btn.setAttribute('aria-expanded', 'false');
+}
+
+export function toggleQualityMenu(e) {
+  if (e) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
+  const menu = document.getElementById('qualityMenu');
+  const btn = document.getElementById('qualityBtn');
+  if (!menu) return;
+  const isOpen = menu.classList.toggle('show');
+  if (btn) btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+}
+
 function setupQualitySelector(levels) {
   const qualityBtn = document.getElementById('qualityBtn');
-  const modal = document.getElementById('qualityModal');
+  const menu = document.getElementById('qualityMenu');
   const optionsContainer = document.getElementById('qualityOptions');
 
-  if (!qualityBtn || !modal || !optionsContainer) return;
+  if (!qualityBtn || !menu || !optionsContainer) return;
 
   optionsContainer.innerHTML = '';
 
-  // Add Auto option
-  const autoBtn = document.createElement('button');
-  autoBtn.className = 'quality-option';
-  autoBtn.textContent = 'Auto (Recommended)';
-  autoBtn.onclick = () => {
-    if (hls) {
-      hls.currentLevel = -1;
-      qualityBtn.title = 'Quality: Auto';
-      showToast('Quality: Auto');
-    }
-    modal.style.display = 'none';
-  };
-  optionsContainer.appendChild(autoBtn);
-
-  // Add quality levels
-  levels.forEach((level, index) => {
+  const renderOption = (label, index, isAuto = false, badgeText = '') => {
     const btn = document.createElement('button');
-    btn.className = 'quality-option';
-    const resolution = level.height || 'Unknown';
-    btn.textContent = `${resolution}p`;
-    btn.onclick = () => {
+    btn.className = 'quality-option-btn' + (currentQualityIndex === index ? ' active' : '');
+    btn.type = 'button';
+    btn.setAttribute('role', 'menuitem');
+
+    const badgeHtml = badgeText ? `<span class="quality-option-badge">${badgeText}</span>` : '';
+
+    btn.innerHTML = `
+      <span class="quality-option-check">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </span>
+      <span class="quality-option-label">${label}</span>
+      ${badgeHtml}
+    `;
+
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      currentQualityIndex = index;
       if (hls) {
         hls.currentLevel = index;
-        qualityBtn.title = `Quality: ${resolution}p`;
-        showToast(`Quality: ${resolution}p`);
       }
-      modal.style.display = 'none';
-    };
-    optionsContainer.appendChild(btn);
-  });
+      const titleLabel = isAuto ? 'Auto' : label;
+      qualityBtn.title = `Quality: ${titleLabel}`;
+      showToast(`Quality: ${titleLabel}`);
 
-  qualityBtn.title = 'Quality: Auto';
-  qualityBtn.onclick = () => {
-    modal.style.display = 'flex';
+      optionsContainer.querySelectorAll('.quality-option-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      closeQualityMenu();
+    };
+
+    optionsContainer.appendChild(btn);
   };
-  modal.onclick = (e) => {
-    if (e.target === modal) modal.style.display = 'none';
-  };
+
+  // Add Auto option at top
+  renderOption('Auto', -1, true);
+
+  // Add quality levels sorted descending by height (1080p, 720p, etc.)
+  if (levels && levels.length > 0) {
+    const mapped = levels.map((lvl, idx) => ({ lvl, originalIndex: idx }));
+    mapped.sort((a, b) => (b.lvl.height || 0) - (a.lvl.height || 0));
+
+    mapped.forEach(({ lvl, originalIndex }) => {
+      const height = lvl.height;
+      const resLabel = height ? `${height}p` : `Level ${originalIndex + 1}`;
+      const badge = (height >= 720) ? 'HD' : '';
+      renderOption(resLabel, originalIndex, false, badge);
+    });
+  }
+
+  qualityBtn.title = currentQualityIndex === -1 ? 'Quality: Auto' : qualityBtn.title;
+  qualityBtn.onclick = toggleQualityMenu;
 }
 
 function setupBasicQualityOptions() {
   const qualityBtn = document.getElementById('qualityBtn');
+  const optionsContainer = document.getElementById('qualityOptions');
   if (!qualityBtn) return;
+
   qualityBtn.title = 'Quality: Auto';
-  qualityBtn.onclick = () => {
-    showToast('Quality control adapts automatically for this stream');
-  };
+  if (optionsContainer) {
+    optionsContainer.innerHTML = `
+      <button class="quality-option-btn active" type="button" role="menuitem">
+        <span class="quality-option-check">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </span>
+        <span class="quality-option-label">Auto (Stream Default)</span>
+      </button>
+    `;
+    const singleBtn = optionsContainer.querySelector('.quality-option-btn');
+    if (singleBtn) {
+      singleBtn.onclick = (e) => {
+        e.stopPropagation();
+        closeQualityMenu();
+      };
+    }
+  }
+  qualityBtn.onclick = toggleQualityMenu;
 }
 
 function showLoading(possibleChannel) {
