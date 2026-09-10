@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tinytv-v2';
+const CACHE_NAME = 'tinytv-v3';
 const urlsToCache = [
   './',
   'index.html',
@@ -60,23 +60,25 @@ self.addEventListener('fetch', event => {
     return;
   }
 
+  // Network-first strategy for app assets (ensures immediate updates while supporting offline)
   event.respondWith(
-    caches.match(event.request).then(cachedResponse => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).then(response => {
-        if (!response || response.status !== 200 || response.type !== 'basic') {
-          return response;
+    fetch(event.request)
+      .then(response => {
+        if (response && response.status === 200 && response.type === 'basic') {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, responseToCache);
+          });
         }
-        const responseToCache = response.clone();
-        caches.open(CACHE_NAME).then(cache => {
-          cache.put(event.request, responseToCache);
-        });
         return response;
-      }).catch(() => {
-        return caches.match('./') || caches.match('index.html');
-      });
-    })
+      })
+      .catch(() => {
+        return caches.match(event.request).then(cached => {
+          if (cached) return cached;
+          if (event.request.mode === 'navigate') {
+            return caches.match('./') || caches.match('index.html');
+          }
+        });
+      })
   );
 });

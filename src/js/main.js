@@ -6,7 +6,10 @@ document.addEventListener('DOMContentLoaded', initApp);
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./service-worker.js')
-            .then(reg => console.log('Service Worker registered'))
+            .then(reg => {
+                console.log('Service Worker registered');
+                reg.update();
+            })
             .catch(err => console.log('Service Worker registration failed:', err));
     });
 }
