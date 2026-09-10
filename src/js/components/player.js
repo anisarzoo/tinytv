@@ -1,3 +1,5 @@
+import { showToast } from '../utils/storage.js';
+
 let video, hls;
 let currentChannel;
 let availableLevels = [];
@@ -9,13 +11,15 @@ export function initPlayer() {
 
   video.addEventListener('play', () => {
     userPaused = false; // User resumed playback
-    document.getElementById('centerPlayBtn').style.display = 'none';
+    const centerPlayBtn = document.getElementById('centerPlayBtn');
+    if (centerPlayBtn) centerPlayBtn.style.display = 'none';
     hideLoading();
   });
 
   video.addEventListener('pause', () => {
     userPaused = true; // User manually paused
-    document.getElementById('centerPlayBtn').style.display = 'flex';
+    const centerPlayBtn = document.getElementById('centerPlayBtn');
+    if (centerPlayBtn) centerPlayBtn.style.display = 'flex';
   });
 
   video.addEventListener('waiting', showLoading);
@@ -23,15 +27,16 @@ export function initPlayer() {
 
   video.addEventListener('error', () => {
     hideLoading();
-    import('../utils/storage.js').then(({ showToast }) => {
-      showToast('Stream error. Try another channel.', 'error');
-    });
+    showToast('Stream error. Try another channel.', 'error');
   });
 
   // Click video to play/pause
   video.addEventListener('click', () => {
     togglePlayPause();
   });
+
+  // Setup default quality options on init
+  setupBasicQualityOptions();
 
   setupPlayerFavOverlay();
 }
@@ -84,8 +89,10 @@ export function loadStream(channel) {
   if (video && !video.paused) {
     video.pause();
   }
-  video.removeAttribute('src');
-  video.load(); // Clear buffer fast
+  if (video) {
+    video.removeAttribute('src');
+    video.load(); // Clear buffer fast
+  }
 
   // OPTIMIZATION 2: Fast HLS cleanup (non-blocking)
   if (hls && !isDestroying) {
@@ -103,14 +110,12 @@ export function loadStream(channel) {
 
   if (!channel || !channel.url) {
     hideLoading();
-    import('../utils/storage.js').then(({ showToast }) => {
-      showToast('Channel link is missing or broken.', 'error');
-    });
+    showToast('Channel link is missing or broken.', 'error');
     return;
   }
 
   if (channel.url.includes('.m3u8')) {
-    if (Hls.isSupported()) {
+    if (typeof Hls !== 'undefined' && Hls.isSupported()) {
       // OPTIMIZATION 3: Aggressive HLS config for instant loading
       hls = new Hls({
         enableWorker: true,
@@ -156,7 +161,7 @@ export function loadStream(channel) {
       hls.loadSource(channel.url);
       hls.attachMedia(video);
 
-      // FIXED: Only auto-play on FIRST fragment, not every fragment
+      // Only auto-play on FIRST fragment, not every fragment
       let hasPlayed = false;
       hls.on(Hls.Events.FRAG_BUFFERED, () => {
         if (!hasPlayed && video.paused && video.readyState >= 2 && !userPaused) {
@@ -186,9 +191,10 @@ export function loadStream(channel) {
           switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
               console.error('Network or CORS error:', data);
-              import('../utils/storage.js').then(({ showToast }) => {
-                showToast('Network/CORS block. Stream may be restricted.', 'error');
-              });
+              showToast(`${currentChannel?.name || 'Channel'} stream restricted. Skipping to next...`, 'warning');
+              if (window.handleNextChannel) {
+                setTimeout(window.handleNextChannel, 1500);
+              }
               break;
             case Hls.ErrorTypes.MEDIA_ERROR:
               console.error('Media error, trying to recover...');
@@ -206,28 +212,36 @@ export function loadStream(channel) {
       // Native HLS (Safari/iOS) - Already optimized
       video.src = channel.url;
       video.load();
-      video.play();
+      video.play().catch(e => console.log('Native HLS play prevented:', e));
       setupBasicQualityOptions();
     }
   } else {
     // OPTIMIZATION 5: Direct video (MP4, etc.)
     video.src = channel.url;
     video.load();
-    video.play();
+    video.play().catch(e => console.log('Direct video play prevented:', e));
     setupBasicQualityOptions();
   }
 }
 
 export function togglePlayPause() {
+  if (!video) return;
   if (video.paused) {
-    video.play();
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(err => {
+        if (err.name !== 'AbortError') {
+          console.log('Play prevented:', err);
+        }
+      });
+    }
   } else {
     video.pause();
   }
 }
 
 export function seekVideo(seconds) {
-  video.currentTime += seconds;
+  if (video) video.currentTime += seconds;
 }
 
 function setupQualitySelector(levels) {
@@ -235,19 +249,19 @@ function setupQualitySelector(levels) {
   const modal = document.getElementById('qualityModal');
   const optionsContainer = document.getElementById('qualityOptions');
 
+  if (!qualityBtn || !modal || !optionsContainer) return;
+
   optionsContainer.innerHTML = '';
 
   // Add Auto option
   const autoBtn = document.createElement('button');
   autoBtn.className = 'quality-option';
-  autoBtn.textContent = 'Auto';
+  autoBtn.textContent = 'Auto (Recommended)';
   autoBtn.onclick = () => {
     if (hls) {
       hls.currentLevel = -1;
       qualityBtn.textContent = 'Auto';
-      import('../utils/storage.js').then(({ showToast }) => {
-        showToast('Quality: Auto');
-      });
+      showToast('Quality: Auto');
     }
     modal.style.display = 'none';
   };
@@ -263,9 +277,7 @@ function setupQualitySelector(levels) {
       if (hls) {
         hls.currentLevel = index;
         qualityBtn.textContent = `${resolution}p`;
-        import('../utils/storage.js').then(({ showToast }) => {
-          showToast(`Quality: ${resolution}p`);
-        });
+        showToast(`Quality: ${resolution}p`);
       }
       modal.style.display = 'none';
     };
@@ -283,11 +295,10 @@ function setupQualitySelector(levels) {
 
 function setupBasicQualityOptions() {
   const qualityBtn = document.getElementById('qualityBtn');
-  qualityBtn.textContent = 'SD';
+  if (!qualityBtn) return;
+  qualityBtn.textContent = 'Auto';
   qualityBtn.onclick = () => {
-    import('../utils/storage.js').then(({ showToast }) => {
-      showToast('Quality control not available for this stream');
-    });
+    showToast('Quality control adapts automatically for this stream');
   };
 }
 
@@ -297,22 +308,25 @@ function showLoading(possibleChannel) {
   const placeholder = document.getElementById('loadingPlaceholder');
   const nameEl = document.getElementById('loadingChannelName');
 
+  if (!overlay) return;
+
   // If called via event listener, the first argument is an Event, not the channel.
-  // We use our local currentChannel variable as a fallback.
   const channel = (possibleChannel && typeof possibleChannel.name === 'string')
     ? possibleChannel
     : currentChannel;
 
   if (channel) {
-    nameEl.textContent = channel.name;
-    if (channel.logo) {
-      logo.src = channel.logo;
-      logo.style.display = 'block';
-      placeholder.style.display = 'none';
-    } else {
-      logo.style.display = 'none';
-      placeholder.textContent = channel.name[0] || 'TV';
-      placeholder.style.display = 'flex';
+    if (nameEl) nameEl.textContent = channel.name;
+    if (logo && placeholder) {
+      if (channel.logo) {
+        logo.src = channel.logo;
+        logo.style.display = 'block';
+        placeholder.style.display = 'none';
+      } else {
+        logo.style.display = 'none';
+        placeholder.textContent = channel.name[0] || 'TV';
+        placeholder.style.display = 'flex';
+      }
     }
   }
 
@@ -322,8 +336,12 @@ function showLoading(possibleChannel) {
 
 function hideLoading() {
   const overlay = document.getElementById('videoLoading');
+  if (!overlay) return;
   overlay.style.opacity = '0';
   setTimeout(() => {
     overlay.style.display = 'none';
   }, 500);
 }
+
+// Expose globally for HTML/controls compatibility
+window.togglePlayPause = togglePlayPause;

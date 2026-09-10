@@ -209,18 +209,19 @@ export function playChannel(channel, index) {
     document.querySelectorAll('.channel-card').forEach((card, i) => {
         card.classList.toggle('active', i === index);
     });
-    document.querySelectorAll('.favorite-card').forEach((card, i) => {
+    document.querySelectorAll('.sidebar-channel').forEach((card, i) => {
         card.classList.toggle('active', i === index);
     });
+    document.querySelectorAll('.favorite-card, .player-fav-item').forEach((card) => {
+        card.classList.toggle('active', card.getAttribute('data-name') === channel.name);
+    });
 
-    // Close sidebar + filter panel on mobile
+    // Close sidebar on mobile
     if (!state.isDesktop) {
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
-        const filterPanel = document.getElementById('filterPanel');
         if (sidebar) sidebar.classList.remove('open');
         if (overlay) overlay.classList.remove('show');
-        if (filterPanel) filterPanel.classList.remove('open');
     }
 }
 
@@ -239,11 +240,15 @@ window.handleFilterChange = handleFilterChange;
 window.state = state;
 window.playChannel = playChannel;
 
-// Handle broken channel logos gracefully
+// Handle broken channel logos gracefully across all card structures
 window.handleImageError = function (img) {
+    if (!img) return;
     img.style.display = 'none';
-    const placeholder = img.nextElementSibling;
-    if (placeholder && placeholder.classList.contains('channel-placeholder')) {
+    const parent = img.parentElement;
+    const placeholder = (img.nextElementSibling && img.nextElementSibling.classList.contains('channel-placeholder'))
+        ? img.nextElementSibling
+        : (parent ? parent.querySelector('.channel-placeholder') : null);
+    if (placeholder) {
         placeholder.style.display = 'flex';
     }
 };

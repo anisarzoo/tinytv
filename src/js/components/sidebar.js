@@ -34,16 +34,6 @@ export function initSidebar() {
     });
   }
 
-  // Sidebar search functionality:
-  // now only updates the input; real filtering is done in filters.js via handleFilterChange
-  const sidebarSearchInput = document.getElementById('sidebarSearchInput');
-  if (sidebarSearchInput) {
-    sidebarSearchInput.addEventListener('input', () => {
-      // filters.js listens to this input and recomputes state.filteredChannels
-      // No DOM-level filtering here to avoid desync
-    });
-  }
-
   // Mobile swipe gesture support
   initSwipeGesture();
 }

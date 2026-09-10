@@ -127,25 +127,7 @@ export function initControls(onPrev, onNext) {
     }
   };
 
-  // NEW: Double-click video to toggle fullscreen
-  let lastClickTime = 0;
-  const doubleClickDelay = 300; // ms
-
-  videoContainer.addEventListener('click', (e) => {
-    const currentTime = new Date().getTime();
-    const timeDiff = currentTime - lastClickTime;
-
-    if (timeDiff < doubleClickDelay && timeDiff > 0) {
-      // Double-click detected
-      window.toggleFullscreen();
-      e.preventDefault();
-      e.stopPropagation();
-    }
-
-    lastClickTime = currentTime;
-  });
-
-  // Alternative: Use native dblclick event (more reliable)
+  // Double-click video to toggle fullscreen (native dblclick)
   videoContainer.addEventListener('dblclick', (e) => {
     window.toggleFullscreen();
     e.preventDefault();
@@ -164,31 +146,9 @@ export function initControls(onPrev, onNext) {
     if (window.handleFilterChange) {
       window.handleFilterChange();
     }
-  };
-
-  // Quality modal
-  window.showQualityModal = () => {
-    const modal = document.getElementById('qualityModal');
-    const options = document.getElementById('qualityOptions');
-    if (modal && options) {
-      options.innerHTML = `
-        <div class="quality-option" onclick="setQuality('auto')">Auto (Recommended)</div>
-        <div class="quality-option" onclick="setQuality('1080p')">1080p Full HD</div>
-        <div class="quality-option" onclick="setQuality('720p')">720p HD</div>
-        <div class="quality-option" onclick="setQuality('480p')">480p SD</div>
-      `;
-      modal.style.display = 'flex';
-      modal.onclick = (e) => {
-        if (e.target === modal) modal.style.display = 'none';
-      };
+    if (typeof window.syncAllFavorites === 'function') {
+      window.syncAllFavorites(window.currentChannel.name);
     }
-  };
-
-  window.setQuality = (quality) => {
-    const modal = document.getElementById('qualityModal');
-    const qualityBtn = document.getElementById('qualityBtn');
-    if (qualityBtn) qualityBtn.textContent = quality === 'auto' ? 'Auto' : quality;
-    if (modal) modal.style.display = 'none';
   };
 
   // Volume slider gradient trail - FIXED

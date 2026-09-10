@@ -39,15 +39,7 @@ window.updateFavoritesCount = function () {
     });
 };
 
-// 🔥 SAFE IMAGE ERROR HANDLER
-window.handleImageError = function (img) {
-    if (!img) return;
-    img.style.display = 'none';
-    const placeholder = img.parentElement.querySelector('.channel-placeholder');
-    if (placeholder) placeholder.style.display = 'flex';
-};
-
-// 🔥 GLOBAL FAV SYNC - Updates PLAYER HEART + ALL COUNTS + GRIDS
+// 🔥 GLOBAL FAV SYNC - Updates PLAYER HEART + ALL COUNTS + IN-PLACE ICONS + FAVORITES GRID
 window.syncAllFavorites = function (channelName) {
     // Update player heart button
     if (typeof window.updateFavoriteButton === 'function') {
@@ -59,15 +51,17 @@ window.syncAllFavorites = function (channelName) {
         window.updateFavoritesCount();
     }
 
-    // Reload all grids sharing state
+    // Update heart icons in-place without destroying DOM / scroll position
+    if (channelName) {
+        const fav = isFavorite(channelName);
+        document.querySelectorAll(`.channel-fav[data-name="${CSS.escape(channelName)}"]`).forEach(btn => {
+            btn.classList.toggle('fav-active', fav);
+        });
+    }
+
+    // Reload favorites grid (favorites row / player overlay only)
     if (window.state && window.playChannel) {
         renderFavoritesGrid(window.state.allChannels, window.playChannel);
-
-        // Sync Sidebar (Crucial if favorites are toggled elsewhere)
-        if (window.state.filteredChannels) {
-            renderSidebarChannels(window.state.filteredChannels, window.playChannel);
-            renderChannelGrid(window.state.filteredChannels, window.playChannel);
-        }
     }
 };
 
@@ -218,6 +212,7 @@ function renderToGrid(container, channels, onPlay, className) {
     channels.forEach((ch, idx) => {
         const item = document.createElement('div');
         item.className = className;
+        item.setAttribute('data-name', ch.name);
 
         const logoUrl = ch.logo || '';
         const hasLogo = logoUrl !== '';

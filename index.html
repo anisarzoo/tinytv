@@ -67,13 +67,6 @@
             </div>
 
             <div class="header-actions">
-                <button id="filterBtn" class="header-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-                    </svg>
-                    <span class="btn-text">Filters</span>
-                </button>
-
                 <!-- PWA INSTALL BUTTON -->
                 <button id="installBtn" class="header-btn install-btn" style="display: none;">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -226,175 +219,6 @@
             <!-- Channel List -->
             <div id="sidebarChannels" class="sidebar-channels"></div>
         </aside>
-
-        <!-- Filter Panel (Desktop Only) -->
-        <div id="filterPanel" class="filter-panel">
-            <div class="filter-panel-header">
-                <h3>Filters & Options</h3>
-                <button id="closeFilter" class="close-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
-            </div>
-
-            <div class="filter-content-modern">
-                <div class="modern-filters">
-                    <!-- Search -->
-                    <div class="filter-input-group">
-                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <path d="m21 21-4.35-4.35"></path>
-                        </svg>
-                        <input type="text" id="searchInput" class="modern-input" placeholder="Search channels...">
-                    </div>
-
-                    <!-- Row 1: Region + Category -->
-                    <div class="filter-grid">
-                        <div class="filter-select-group">
-                            <label class="filter-label">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <line x1="2" y1="12" x2="22" y2="12"></line>
-                                    <path
-                                        d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
-                                    </path>
-                                </svg>
-                                Region
-                            </label>
-                            <select id="regionSelect" class="modern-select">
-                                <option value="ALL">All channels</option>
-                                <option value="IN" selected>India</option>
-                                <option value="PK">Pakistan</option>
-                                <option value="US">USA</option>
-                                <option value="GB">UK</option>
-                                <option value="AE">UAE</option>
-                                <option value="SA">Saudi Arabia</option>
-                                <option value="CA">Canada</option>
-                                <option value="AU">Australia</option>
-                                <option value="FR">France</option>
-                                <option value="DE">Germany</option>
-                                <option value="BR">Brazil</option>
-                                <option value="JP">Japan</option>
-                            </select>
-                        </div>
-
-                        <div class="filter-select-group">
-                            <label class="filter-label">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path
-                                        d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z">
-                                    </path>
-                                </svg>
-                                Category
-                            </label>
-                            <select id="categorySelect" class="modern-select">
-                                <option value="">All Categories</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Row 2: Quality + Sort -->
-                    <div class="filter-grid">
-                        <div class="filter-select-group">
-                            <label class="filter-label">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
-                                    <polyline points="17 2 12 7 7 2"></polyline>
-                                </svg>
-                                Quality
-                            </label>
-                            <select id="qualitySelect" class="modern-select">
-                                <option value="all" selected>All Quality</option>
-                                <option value="hd">HD (720p+)</option>
-                                <option value="fhd">Full HD (1080p+)</option>
-                            </select>
-                        </div>
-
-                        <div class="filter-select-group">
-                            <label class="filter-label">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <line x1="8" y1="6" x2="21" y2="6"></line>
-                                    <line x1="8" y1="12" x2="21" y2="12"></line>
-                                    <line x1="8" y1="18" x2="21" y2="18"></line>
-                                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
-                                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
-                                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
-                                </svg>
-                                Sort By
-                            </label>
-                            <select id="sortSelect" class="modern-select">
-                                <option value="smart" selected>Smart</option>
-                                <option value="name">A-Z</option>
-                                <option value="quality">Quality</option>
-                                <option value="category">Category</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Toggles -->
-                    <div class="modern-toggles">
-                        <label class="modern-toggle">
-                            <input type="checkbox" id="hideRegional" checked>
-                            <span class="toggle-track">
-                                <span class="toggle-thumb"></span>
-                            </span>
-                            <span class="toggle-content">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
-                                </svg>
-                                <span class="toggle-label">Hide Regional Channels</span>
-                            </span>
-                        </label>
-
-                        <label class="modern-toggle">
-                            <input type="checkbox" id="hideOffline" checked>
-                            <span class="toggle-track">
-                                <span class="toggle-thumb"></span>
-                            </span>
-                            <span class="toggle-content">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="m9 9 5 12 1.8-5.2L21 14Z"></path>
-                                    <path d="M7.2 2.2 8 5.1"></path>
-                                    <path d="m5.1 8-2.9-.8"></path>
-                                    <path d="M14 4.1 12 6"></path>
-                                    <path d="m6 12-1.9 2"></path>
-                                </svg>
-                                <span class="toggle-label">Hide Offline Channels</span>
-                            </span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Stats -->
-                <div class="modern-stats">
-                    <div class="stat-card">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
-                            <polyline points="17 2 12 7 7 2"></polyline>
-                        </svg>
-                        <div class="stat-info">
-                            <span class="stat-value" id="channelCount">0</span>
-                            <span class="stat-label">Channels</span>
-                        </div>
-                        <div class="stat-card">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path
-                                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
-                                </path>
-                            </svg>
-                            <div class="stat-info">
-                                <span class="stat-value" id="favoriteCount">0</span>
-                                <span class="stat-label">Favorites</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- Main Content -->
         <div class="content">
@@ -607,8 +431,7 @@
                                         </svg>
                                     </button>
 
-                                    <button class="control-btn control-btn-pill" onclick="window.showQualityModal()"
-                                        id="qualityBtn" title="Quality">Auto</button>
+                                    <button class="control-btn control-btn-pill" id="qualityBtn" title="Quality">Auto</button>
 
                                     <button class="control-btn" onclick="window.toggleFullscreen()" title="Fullscreen">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -763,19 +586,10 @@
         });
 
         window.addEventListener('appinstalled', () => {
-            console.log('Tivy installed!');
+            console.log('TinyTV installed!');
             installBtn.style.display = 'none';
             deferredPrompt = null;
         });
-
-        // Service worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('service-worker.js')
-                    .then(reg => console.log('Service Worker registered'))
-                    .catch(err => console.log('Service Worker registration failed', err));
-            });
-        }
     </script>
 </body>
 

@@ -1,6 +1,6 @@
 // src/js/components/filters.js
 
-import { isRegionalChannel, isProbablyOffline, getChannelScore } from '../utils/channelFilter.js';
+import { isRegionalChannel, isProbablyOffline, getChannelScore } from '../utils/channelfilter.js';
 import { initAllDropdowns } from '../utils/dropdown.js';
 
 let filterCallback;
@@ -8,51 +8,7 @@ let filterCallback;
 export function initFilters(onChange) {
   filterCallback = onChange;
 
-  // Desktop filter panel (OLD - now hidden)
-  const filterBtn = document.getElementById('filterBtn');
-  const closeFilter = document.getElementById('closeFilter');
-  const filterPanel = document.getElementById('filterPanel');
-
-  if (filterBtn) {
-    filterBtn.addEventListener('click', () => {
-      filterPanel.classList.add('open');
-    });
-  }
-
-  if (closeFilter) {
-    closeFilter.addEventListener('click', () => {
-      filterPanel.classList.remove('open');
-    });
-  }
-
-  // OLD Desktop filter inputs (in right panel - still works if present)
-  const searchInput = document.getElementById('searchInput');
-  if (searchInput) searchInput.addEventListener('input', handleFilterChange);
-
-  const regionSelect = document.getElementById('regionSelect');
-  if (regionSelect) regionSelect.addEventListener('change', handleRegionChange);
-
-  const categorySelect = document.getElementById('categorySelect');
-  if (categorySelect) categorySelect.addEventListener('change', handleFilterChange);
-
-  const qualitySelect = document.getElementById('qualitySelect');
-  if (qualitySelect) qualitySelect.addEventListener('change', handleFilterChange);
-
-  const sortSelect = document.getElementById('sortSelect');
-  if (sortSelect) sortSelect.addEventListener('change', handleFilterChange);
-
-  const hideRegional = document.getElementById('hideRegional');
-  if (hideRegional) hideRegional.addEventListener('change', handleFilterChange);
-
-  const hideOffline = document.getElementById('hideOffline');
-  if (hideOffline) hideOffline.addEventListener('change', handleFilterChange);
-
-  const favoritesOnly = document.getElementById('favoritesOnly');
-  if (favoritesOnly) favoritesOnly.addEventListener('change', handleFilterChange);
-
-  // === NEW DESKTOP FILTERS (integrated in left panel) ===
-
-  // Toggle filter section open/close
+  // === DESKTOP FILTERS (integrated in left panel) ===
   const desktopFilterToggle = document.getElementById('desktopFilterToggle');
   const desktopFiltersContent = document.getElementById('desktopFiltersContent');
   if (desktopFilterToggle && desktopFiltersContent) {
@@ -90,7 +46,11 @@ export function initFilters(onChange) {
   const desktopHideOffline = document.getElementById('desktopHideOffline');
   if (desktopHideOffline) desktopHideOffline.addEventListener('change', handleFilterChange);
 
-  // Mobile sidebar filter inputs
+  // Desktop favorites only checkbox (in left panel)
+  const desktopFavoritesOnly = document.getElementById('desktopFavoritesOnly');
+  if (desktopFavoritesOnly) desktopFavoritesOnly.addEventListener('change', handleFilterChange);
+
+  // === MOBILE SIDEBAR FILTERS ===
   const sidebarRegionSelect = document.getElementById('sidebarRegionSelect');
   if (sidebarRegionSelect) sidebarRegionSelect.addEventListener('change', handleSidebarRegionChange);
 
@@ -112,7 +72,7 @@ export function initFilters(onChange) {
   const sidebarFavoritesOnly = document.getElementById('sidebarFavoritesOnly');
   if (sidebarFavoritesOnly) sidebarFavoritesOnly.addEventListener('change', handleFilterChange);
 
-  // Sidebar search input should also trigger filtering
+  // Sidebar search input
   const sidebarSearchInput = document.getElementById('sidebarSearchInput');
   if (sidebarSearchInput) sidebarSearchInput.addEventListener('input', handleFilterChange);
 
@@ -124,7 +84,7 @@ export function initFilters(onChange) {
 }
 
 function handleFilterChange(e) {
-  // Sync checkboxes if one was changed
+  // Sync checkboxes across desktop and sidebar
   if (e && e.target && e.target.type === 'checkbox') {
     const isChecked = e.target.checked;
     const id = e.target.id;
@@ -132,24 +92,20 @@ function handleFilterChange(e) {
     if (id.includes('HideRegional')) {
       const el1 = document.getElementById('sidebarHideRegional');
       const el2 = document.getElementById('desktopHideRegional');
-      const el3 = document.getElementById('hideRegional');
       if (el1) el1.checked = isChecked;
       if (el2) el2.checked = isChecked;
-      if (el3) el3.checked = isChecked;
     }
 
     if (id.includes('HideOffline')) {
       const el1 = document.getElementById('sidebarHideOffline');
       const el2 = document.getElementById('desktopHideOffline');
-      const el3 = document.getElementById('hideOffline');
       if (el1) el1.checked = isChecked;
       if (el2) el2.checked = isChecked;
-      if (el3) el3.checked = isChecked;
     }
 
     if (id.includes('FavoritesOnly')) {
       const el1 = document.getElementById('sidebarFavoritesOnly');
-      const el2 = document.getElementById('favoritesOnly');
+      const el2 = document.getElementById('desktopFavoritesOnly');
       if (el1) el1.checked = isChecked;
       if (el2) el2.checked = isChecked;
     }
@@ -161,59 +117,42 @@ function handleFilterChange(e) {
 }
 
 export function applyFilters(channels) {
-  // Get values from desktop (new left panel), old desktop panel, or sidebar
   const isMobile = window.innerWidth < 768;
 
-  // Search input priority: new desktop > old desktop > sidebar
-  const desktopNewSearchInput = document.getElementById('desktopSearchInput');
-  const desktopOldSearchInput = document.getElementById('searchInput');
+  const desktopSearchInput = document.getElementById('desktopSearchInput');
   const sidebarSearchInput = document.getElementById('sidebarSearchInput');
+  const search = (isMobile ? (sidebarSearchInput?.value || '') : (desktopSearchInput?.value || '')).toLowerCase().trim();
 
-  const search = (
-    isMobile
-      ? (sidebarSearchInput?.value || '')
-      : (desktopNewSearchInput?.value || desktopOldSearchInput?.value || '')
-  ).toLowerCase();
+  const category = (isMobile
+    ? document.getElementById('sidebarCategorySelect')?.value
+    : document.getElementById('desktopCategorySelect')?.value) || '';
 
-  // Category: new desktop > old desktop > sidebar
-  const category = isMobile
-    ? document.getElementById('sidebarCategorySelect')?.value || ''
-    : document.getElementById('desktopCategorySelect')?.value ||
-    document.getElementById('categorySelect')?.value || '';
+  const quality = (isMobile
+    ? document.getElementById('sidebarQualitySelect')?.value
+    : document.getElementById('desktopQualitySelect')?.value) || 'all';
 
-  // Quality: new desktop > old desktop > sidebar
-  const quality = isMobile
-    ? document.getElementById('sidebarQualitySelect')?.value || 'all'
-    : document.getElementById('desktopQualitySelect')?.value ||
-    document.getElementById('qualitySelect')?.value || 'all';
+  const sort = (isMobile
+    ? document.getElementById('sidebarSortSelect')?.value
+    : document.getElementById('desktopSortSelect')?.value) || 'smart';
 
-  // Sort: new desktop > old desktop > sidebar
-  const sort = isMobile
-    ? document.getElementById('sidebarSortSelect')?.value || 'smart'
-    : document.getElementById('desktopSortSelect')?.value ||
-    document.getElementById('sortSelect')?.value || 'smart';
+  const hideRegional = (isMobile
+    ? document.getElementById('sidebarHideRegional')?.checked
+    : document.getElementById('desktopHideRegional')?.checked) ?? false;
 
-  // Hide regional: new desktop > sidebar > old desktop
-  const hideRegional = document.getElementById('desktopHideRegional')?.checked ??
-    document.getElementById('sidebarHideRegional')?.checked ??
-    document.getElementById('hideRegional')?.checked ?? false;
+  const hideOffline = (isMobile
+    ? document.getElementById('sidebarHideOffline')?.checked
+    : document.getElementById('desktopHideOffline')?.checked) ?? false;
 
-  // Hide offline: new desktop > sidebar > old desktop
-  const hideOffline = document.getElementById('desktopHideOffline')?.checked ??
-    document.getElementById('sidebarHideOffline')?.checked ??
-    document.getElementById('hideOffline')?.checked ?? false;
-
-  // Favorites only
-  const favoritesOnly = document.getElementById('desktopFavoritesOnly')?.checked ??
-    document.getElementById('sidebarFavoritesOnly')?.checked ??
-    document.getElementById('favoritesOnly')?.checked ?? false;
+  const favoritesOnly = (isMobile
+    ? document.getElementById('sidebarFavoritesOnly')?.checked
+    : document.getElementById('desktopFavoritesOnly')?.checked) ?? false;
 
   let filtered = [...channels];
 
   // Search filter
   if (search) {
     filtered = filtered.filter(ch =>
-      ch.name.toLowerCase().includes(search) ||
+      (ch.name || '').toLowerCase().includes(search) ||
       (ch.category || '').toLowerCase().includes(search)
     );
   }
@@ -244,26 +183,25 @@ export function applyFilters(channels) {
     filtered = filtered.filter(ch => !isProbablyOffline(ch));
   }
 
-  // Favorites only
+  // Favorites only - match by channel name
   if (favoritesOnly) {
     const favorites = JSON.parse(localStorage.getItem('tivy_favorites') || '[]');
-    filtered = filtered.filter(ch =>
-      favorites.some(f => f.id === ch.id)
-    );
+    const favNames = new Set(favorites.map(f => f.name));
+    filtered = filtered.filter(ch => favNames.has(ch.name));
   }
 
   // Sort with smart scoring
   filtered.sort((a, b) => {
-    if (sort === 'name') return a.name.localeCompare(b.name);
-    if (sort === 'quality') return b.quality - a.quality;
-    if (sort === 'category') return a.category.localeCompare(b.category);
+    if (sort === 'name') return (a.name || '').localeCompare(b.name || '');
+    if (sort === 'quality') return (b.quality || 0) - (a.quality || 0);
+    if (sort === 'category') return (a.category || '').localeCompare(b.category || '');
     if (sort === 'smart') {
       return getChannelScore(b) - getChannelScore(a);
     }
     return 0;
   });
 
-  // Update categories dropdown (all three: new desktop, old desktop, sidebar)
+  // Update categories dropdown
   updateCategories(channels);
 
   // Update all stats
@@ -284,22 +222,7 @@ function updateCategories(channels) {
   });
   const categories = [...new Set(allCats)].sort();
 
-  // Update OLD desktop category select
-  const categorySelect = document.getElementById('categorySelect');
-  if (categorySelect) {
-    const currentValue = categorySelect.value;
-    categorySelect.innerHTML = '<option value="">All Categories</option>';
-    categories.forEach(cat => {
-      const option = document.createElement('option');
-      option.value = cat;
-      option.textContent = cat;
-      categorySelect.appendChild(option);
-    });
-    categorySelect.value = currentValue;
-    if (categorySelect._tivyDropdown) categorySelect._tivyDropdown.update();
-  }
-
-  // Update NEW desktop category select (in left panel)
+  // Update desktop category select
   const desktopCategorySelect = document.getElementById('desktopCategorySelect');
   if (desktopCategorySelect) {
     const currentValue = desktopCategorySelect.value;
@@ -333,18 +256,7 @@ function updateCategories(channels) {
 function updateFilterStats(count) {
   const favorites = JSON.parse(localStorage.getItem('tivy_favorites') || '[]');
 
-  // OLD Desktop stats (right panel)
-  const channelCount = document.getElementById('channelCount');
-  if (channelCount && count !== undefined) {
-    channelCount.textContent = count.toString();
-  }
-
-  const favoriteCount = document.getElementById('favoriteCount');
-  if (favoriteCount) {
-    favoriteCount.textContent = favorites.length.toString();
-  }
-
-  // NEW Desktop stats (left panel)
+  // Desktop stats (left panel)
   const desktopStatChannels = document.getElementById('desktopStatChannels');
   if (desktopStatChannels && count !== undefined) {
     desktopStatChannels.textContent = count.toString();
@@ -355,7 +267,7 @@ function updateFilterStats(count) {
     desktopStatFavorites.textContent = favorites.length.toString();
   }
 
-  // Sidebar stats (cards in filter section)
+  // Sidebar stats
   const sidebarStatChannels = document.getElementById('sidebarStatChannels');
   if (sidebarStatChannels && count !== undefined) {
     sidebarStatChannels.textContent = count.toString();
@@ -366,74 +278,35 @@ function updateFilterStats(count) {
     sidebarStatFavorites.textContent = favorites.length.toString();
   }
 
-  // Top sidebar header "X channels"
+  // Top sidebar header count
   const sidebarHeaderCount = document.getElementById('sidebarChannelCount');
   if (sidebarHeaderCount && count !== undefined) {
     sidebarHeaderCount.textContent = count.toString();
   }
 }
 
-// OLD Desktop region change (right panel)
-async function handleRegionChange(e) {
-  const region = e.target.value;
-  if (window.loadChannels) {
-    // Sync with new desktop select
-    const newDesktopSelect = document.getElementById('desktopRegionSelect');
-    if (newDesktopSelect) {
-      newDesktopSelect.value = region;
-      if (newDesktopSelect._tivyDropdown) newDesktopSelect._tivyDropdown.update();
-    }
-
-    // Sync with sidebar select
-    const sidebarSelect = document.getElementById('sidebarRegionSelect');
-    if (sidebarSelect) {
-      sidebarSelect.value = region;
-      if (sidebarSelect._tivyDropdown) sidebarSelect._tivyDropdown.update();
-    }
-
-    document.getElementById('filterPanel')?.classList.remove('open');
-    await window.loadChannels(region === 'ALL' ? null : region);
-  }
-}
-
-// NEW Desktop region change (left panel)
+// Desktop region change (left panel)
 async function handleDesktopRegionChange(e) {
   const region = e.target.value;
   if (window.loadChannels) {
-    // Sync with old desktop select if present
-    const oldDesktopSelect = document.getElementById('regionSelect');
-    if (oldDesktopSelect) {
-      oldDesktopSelect.value = region;
-      if (oldDesktopSelect._tivyDropdown) oldDesktopSelect._tivyDropdown.update();
-    }
-
-    // Sync with sidebar select
     const sidebarSelect = document.getElementById('sidebarRegionSelect');
     if (sidebarSelect) {
       sidebarSelect.value = region;
       if (sidebarSelect._tivyDropdown) sidebarSelect._tivyDropdown.update();
     }
-
     await window.loadChannels(region === 'ALL' ? null : region);
   }
 }
 
-// Sidebar region change: sync with both desktop panels
+// Sidebar region change
 async function handleSidebarRegionChange(e) {
   const region = e.target.value;
   if (window.loadChannels) {
-    const desktopSelect = document.getElementById('regionSelect');
+    const desktopSelect = document.getElementById('desktopRegionSelect');
     if (desktopSelect) {
       desktopSelect.value = region;
       if (desktopSelect._tivyDropdown) desktopSelect._tivyDropdown.update();
     }
-
-    const newDesktopSelect = document.getElementById('desktopRegionSelect');
-    if (newDesktopSelect) {
-      newDesktopSelect.value = region;
-      if (newDesktopSelect._tivyDropdown) newDesktopSelect._tivyDropdown.update();
-    }
-
     await window.loadChannels(region === 'ALL' ? null : region);
   }
 }

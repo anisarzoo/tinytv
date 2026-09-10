@@ -611,16 +611,6 @@
     .favorites-empty p {
         font-size: 0.9rem;
     }
-
-    /* Hide old filter panel - now integrated in channel grid */
-    .filter-panel {
-        display: none !important;
-    }
-
-    /* Hide filter button in header - not needed anymore */
-    #filterBtn {
-        display: none !important;
-    }
 }
 
 /* 🔥 COMPLETE desktop.css - PERFECT 2x2 + Toggle Hover FIXED */

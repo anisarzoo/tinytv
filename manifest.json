@@ -1,28 +1,28 @@
 {
   "name": "TinyTV - Live TV Player",
   "short_name": "TinyTV",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#1a1a2e",
-  "theme_color": "#1a1a2e",
+  "background_color": "#0a0a0c",
+  "theme_color": "#0a0a0c",
   "description": "Watch live TV channels from around the world",
   "icons": [
     {
-      "src": "app.jpg",
+      "src": "logo-192.png",
       "sizes": "192x192",
-      "type": "image/jpeg",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any"
     },
     {
       "src": "app.jpg",
       "sizes": "512x512",
-      "type": "image/jpeg",
-      "purpose": "any"
-    },
-    {
-      "src": "app.jpg",
-      "sizes": "192x192",
       "type": "image/jpeg",
       "purpose": "maskable"
     }
