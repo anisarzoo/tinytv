@@ -1,4 +1,11 @@
 @media (min-width: 768px) {
+    #menuBtn,
+    .mobile-only,
+    #sidebar,
+    #overlay {
+        display: none !important;
+    }
+
     .content {
         display: flex;
         gap: 0;

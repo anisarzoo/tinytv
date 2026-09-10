@@ -35,6 +35,64 @@
   font-weight: 700;
 }
 
+.sidebar-search-container {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--primary);
+  flex-shrink: 0;
+}
+
+.sidebar-search-wrapper {
+  position: relative;
+}
+
+.sidebar-search-wrapper .search-icon,
+.sidebar-search-wrapper svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.sidebar-search-input {
+  width: 100%;
+  padding: 0.65rem 0.75rem 0.65rem 38px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 0.88rem;
+  transition: all 0.2s;
+}
+
+.sidebar-search-input:focus {
+  outline: none;
+  border-color: var(--highlight);
+  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.1);
+}
+
+.sidebar-filter-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.6rem 0;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.sidebar-filter-toggle svg {
+  width: 14px;
+  height: 14px;
+}
+
 .sidebar-channels {
   flex: 1;
   overflow-y: auto;

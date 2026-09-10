@@ -17,8 +17,9 @@
         display: none !important;
     }
 
-    .mobile-only {
-        display: inline-flex;
+    .mobile-only,
+    #menuBtn {
+        display: inline-flex !important;
     }
 
     /* Player on top */
