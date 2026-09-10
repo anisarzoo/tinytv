@@ -226,7 +226,7 @@ function updateCategories(channels) {
   const desktopCategorySelect = document.getElementById('desktopCategorySelect');
   if (desktopCategorySelect) {
     const currentValue = desktopCategorySelect.value;
-    desktopCategorySelect.innerHTML = '<option value="">All Categories</option>';
+    desktopCategorySelect.innerHTML = '<option value="">All</option>';
     categories.forEach(cat => {
       const option = document.createElement('option');
       option.value = cat;
@@ -241,7 +241,7 @@ function updateCategories(channels) {
   const sidebarCategorySelect = document.getElementById('sidebarCategorySelect');
   if (sidebarCategorySelect) {
     const currentValue = sidebarCategorySelect.value;
-    sidebarCategorySelect.innerHTML = '<option value="">All Categories</option>';
+    sidebarCategorySelect.innerHTML = '<option value="">All</option>';
     categories.forEach(cat => {
       const option = document.createElement('option');
       option.value = cat;

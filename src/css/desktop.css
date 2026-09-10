@@ -150,7 +150,8 @@
 
     .desktop-filter-select {
         width: 100%;
-        padding: 0.5rem 0.65rem;
+        height: 34px;
+        padding: 0 0.6rem;
         background: var(--card-bg);
         border: 1px solid var(--border);
         border-radius: 6px;
@@ -158,6 +159,9 @@
         font-size: 0.82rem;
         cursor: pointer;
         transition: border-color 0.2s;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
     }
 
     .desktop-filter-select:focus {
