@@ -25,9 +25,9 @@
         z-index: 10;
     }
 
-    /* Search bar at top */
+    /* Search bar with inline filter toggle */
     .desktop-search-container {
-        padding: 0.7rem 0.85rem;
+        padding: 0.65rem 0.75rem;
         border-bottom: 1px solid var(--border);
         background: var(--primary);
         flex-shrink: 0;
@@ -35,27 +35,32 @@
 
     .desktop-search-wrapper {
         position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
     }
 
     .desktop-search-wrapper .search-icon {
         position: absolute;
-        left: 11px;
+        left: 10px;
         top: 50%;
         transform: translateY(-50%);
-        width: 16px;
-        height: 16px;
+        width: 15px;
+        height: 15px;
         opacity: 0.45;
         pointer-events: none;
     }
 
     .desktop-search-input {
-        width: 100%;
-        padding: 0.55rem 0.65rem 0.55rem 36px;
+        flex: 1;
+        min-width: 0;
+        height: 34px;
+        padding: 0 0.6rem 0 32px;
         background: var(--card-bg);
         border: 1px solid var(--border);
         border-radius: 6px;
         color: var(--text);
-        font-size: 0.85rem;
+        font-size: 0.84rem;
         transition: border-color 0.2s, box-shadow 0.2s;
     }
 
@@ -65,51 +70,46 @@
         box-shadow: 0 0 0 2px rgba(244, 63, 94, 0.15);
     }
 
-    /* Collapsible filter section */
-    .desktop-filter-section {
-        border-bottom: 1px solid var(--border);
-        background: var(--primary);
+    /* Filter Icon Button (Integrated into Search Bar) */
+    .desktop-filter-icon-btn {
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        border-radius: 6px;
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        color: var(--text-dim);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        padding: 0;
+        transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
         flex-shrink: 0;
     }
 
-    .desktop-filter-toggle {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 0.65rem 0.85rem;
-        background: transparent;
-        border: none;
-        color: var(--text-dim);
-        font-size: 0.78rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-        cursor: pointer;
-        transition: background 0.15s, color 0.15s;
+    .desktop-filter-icon-btn svg {
+        width: 15px;
+        height: 15px;
+        stroke-width: 2.2;
     }
 
-    .desktop-filter-toggle:hover {
-        background: rgba(255, 255, 255, 0.03);
+    .desktop-filter-icon-btn:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.18);
         color: var(--text);
     }
 
-    .desktop-filter-toggle svg:first-child {
-        width: 15px;
-        height: 15px;
+    .desktop-filter-icon-btn.open {
+        background: rgba(244, 63, 94, 0.12);
+        border-color: rgba(244, 63, 94, 0.35);
         color: var(--highlight);
     }
 
-    .desktop-filter-toggle .dropdown-icon {
-        width: 14px;
-        height: 14px;
-        margin-left: auto;
-        transition: transform 0.25s;
-        opacity: 0.6;
-    }
-
-    .desktop-filter-toggle.open .dropdown-icon {
-        transform: rotate(180deg);
+    /* Collapsible filter section */
+    .desktop-filter-section {
+        background: var(--primary);
+        flex-shrink: 0;
     }
 
     .desktop-filters-content {
@@ -122,6 +122,7 @@
     .desktop-filters-content.open {
         max-height: 600px;
         overflow-y: auto;
+        border-bottom: 1px solid var(--border);
     }
 
     .desktop-filters-content::-webkit-scrollbar {

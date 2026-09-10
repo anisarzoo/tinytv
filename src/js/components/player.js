@@ -260,7 +260,7 @@ function setupQualitySelector(levels) {
   autoBtn.onclick = () => {
     if (hls) {
       hls.currentLevel = -1;
-      qualityBtn.textContent = 'Auto';
+      qualityBtn.title = 'Quality: Auto';
       showToast('Quality: Auto');
     }
     modal.style.display = 'none';
@@ -276,7 +276,7 @@ function setupQualitySelector(levels) {
     btn.onclick = () => {
       if (hls) {
         hls.currentLevel = index;
-        qualityBtn.textContent = `${resolution}p`;
+        qualityBtn.title = `Quality: ${resolution}p`;
         showToast(`Quality: ${resolution}p`);
       }
       modal.style.display = 'none';
@@ -284,7 +284,7 @@ function setupQualitySelector(levels) {
     optionsContainer.appendChild(btn);
   });
 
-  qualityBtn.textContent = 'Auto';
+  qualityBtn.title = 'Quality: Auto';
   qualityBtn.onclick = () => {
     modal.style.display = 'flex';
   };
@@ -296,7 +296,7 @@ function setupQualitySelector(levels) {
 function setupBasicQualityOptions() {
   const qualityBtn = document.getElementById('qualityBtn');
   if (!qualityBtn) return;
-  qualityBtn.textContent = 'Auto';
+  qualityBtn.title = 'Quality: Auto';
   qualityBtn.onclick = () => {
     showToast('Quality control adapts automatically for this stream');
   };

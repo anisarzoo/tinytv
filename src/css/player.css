@@ -196,14 +196,36 @@
   align-items: center;
   height: 48px;
   width: 100%;
+  position: relative;
 }
 
-.controls-left,
+.controls-left {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  height: 100%;
+  flex: 1;
+  justify-content: flex-start;
+}
+
+.controls-center {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 100%;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: auto;
+}
+
 .controls-right {
   display: flex;
   align-items: center;
   gap: 0.25rem;
   height: 100%;
+  flex: 1;
+  justify-content: flex-end;
 }
 
 /* Base control button - CRISP STUDIO */
@@ -241,28 +263,25 @@
   stroke-width: 2.2px;
 }
 
-/* Pill-style button - CRISP STUDIO */
-.control-btn-pill {
-  width: auto;
-  min-width: 54px;
-  height: 32px;
-  padding: 0 0.75rem;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+/* Center Primary Play/Pause Button */
+.control-btn-primary {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-.control-btn-pill:hover {
-  background: rgba(255, 255, 255, 0.16);
-  border-color: rgba(255, 255, 255, 0.25);
+.control-btn-primary:hover {
+  background: rgba(255, 255, 255, 0.24);
+  border-color: rgba(255, 255, 255, 0.35);
 }
 
 /* Favorite button */
 #favBtn .fav-icon {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   fill: none;
   stroke: currentColor;
   stroke-width: 2px;
@@ -273,26 +292,26 @@
   fill: #f43f5e;
   stroke: #f43f5e;
   filter: drop-shadow(0 0 6px rgba(244, 63, 94, 0.6));
-  transform: scale(1.1);
+  transform: scale(1.08);
 }
 
 #favBtn.fav-active:hover .fav-icon {
-  transform: scale(1.2);
+  transform: scale(1.15);
 }
 
 /* Volume Control */
 .volume-control {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0 0.5rem;
-  height: 48px;
-  border-radius: 12px;
+  gap: 0.35rem;
+  padding: 0 0.35rem;
+  height: 40px;
+  border-radius: 6px;
   transition: background 0.2s ease;
 }
 
 .volume-control:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .volume-control .control-btn {
@@ -301,10 +320,11 @@
   width: 36px;
   min-width: 36px;
   height: 36px;
+  border-radius: 6px;
 }
 
 .volume-control .control-btn:hover {
-  background: rgba(30, 58, 138, 0.5);
+  background: transparent;
   box-shadow: none;
   transform: none;
 }
