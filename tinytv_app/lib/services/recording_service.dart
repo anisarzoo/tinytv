@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -31,9 +32,9 @@ class RecordingService extends ChangeNotifier {
   Timer? _sizeMonitorTimer;
   DateTime? _recordingStartTime;
 
-  http.Client? _httpFallbackClient;
-  IOSink? _httpFallbackSink;
-  StreamSubscription? _httpStreamSub;
+  // Recording engines
+  Process? _ffmpegProcess;
+  _DartHlsStreamRecorder? _dartRecorder;
 
   final List<Recording> _recordings = [];
   List<Recording> get recordings => List.unmodifiable(_recordings);
@@ -53,7 +54,6 @@ class RecordingService extends ChangeNotifier {
         }
       } catch (_) {}
     }
-    // Sort newest first
     _recordings.sort((a, b) => b.recordedAt.compareTo(a.recordedAt));
   }
 
@@ -88,7 +88,7 @@ class RecordingService extends ChangeNotifier {
 
   Future<bool> startRecording({
     required Channel channel,
-    required Player player,
+    Player? player,
   }) async {
     if (_isRecording) return false;
 
@@ -97,7 +97,7 @@ class RecordingService extends ChangeNotifier {
       final now = DateTime.now();
       final timestamp =
           '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}_${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}';
-      
+
       final cleanName = channel.name
           .replaceAll(RegExp(r'[\\/:*?"<>|]'), '_')
           .replaceAll(RegExp(r'\s+'), '_')
@@ -113,7 +113,7 @@ class RecordingService extends ChangeNotifier {
       _recordingFileSize = 0;
       _isRecording = true;
 
-      // Start duration ticker
+      // Start duration ticker (1 second)
       _durationTimer = Timer.periodic(const Duration(seconds: 1), (_) {
         if (_recordingStartTime != null) {
           _recordingDuration = DateTime.now().difference(_recordingStartTime!);
@@ -121,8 +121,8 @@ class RecordingService extends ChangeNotifier {
         }
       });
 
-      // Start file size monitor ticker
-      _sizeMonitorTimer = Timer.periodic(const Duration(milliseconds: 1500), (_) {
+      // Start file size monitor ticker (1 second)
+      _sizeMonitorTimer = Timer.periodic(const Duration(seconds: 1), (_) {
         if (_currentRecordingPath != null) {
           try {
             final f = File(_currentRecordingPath!);
@@ -134,18 +134,39 @@ class RecordingService extends ChangeNotifier {
         }
       });
 
-      // 1. Primary MPV stream-record
-      bool mpvSuccess = false;
+      // Attempt 1: Try Native FFmpeg Process
+      bool ffmpegStarted = false;
       try {
-        await (player.platform as dynamic).setProperty('stream-record', targetPath);
-        mpvSuccess = true;
+        final ffmpegArgs = [
+          '-hide_banner',
+          '-loglevel', 'error',
+          '-y',
+          '-headers', 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36\r\n',
+          '-i', channel.url,
+          '-c', 'copy',
+          '-f', 'mpegts',
+          targetPath,
+        ];
+        _ffmpegProcess = await Process.start('ffmpeg', ffmpegArgs);
+        ffmpegStarted = true;
+
+        // Drain stderr to avoid pipe buffers blocking the process
+        _ffmpegProcess!.stderr.listen((_) {});
+        _ffmpegProcess!.exitCode.then((code) {
+          debugPrint('[RecordingService] FFmpeg exited with code: $code');
+        });
       } catch (e) {
-        debugPrint('[RecordingService] MPV setProperty stream-record failed: $e');
+        debugPrint('[RecordingService] FFmpeg launch failed ($e), falling back to Dart HLS recorder');
+        _ffmpegProcess = null;
       }
 
-      // 2. Auxiliary HTTP stream fallback if MPV setProperty failed
-      if (!mpvSuccess) {
-        _startHttpFallback(channel.url, targetPath);
+      // Attempt 2: Fallback to Pure-Dart HLS & Direct Stream Recorder
+      if (!ffmpegStarted) {
+        _dartRecorder = _DartHlsStreamRecorder(
+          url: channel.url,
+          targetPath: targetPath,
+        );
+        await _dartRecorder!.start();
       }
 
       notifyListeners();
@@ -159,40 +180,7 @@ class RecordingService extends ChangeNotifier {
     }
   }
 
-  void _startHttpFallback(String url, String targetPath) {
-    try {
-      _httpFallbackClient = http.Client();
-      final uri = Uri.parse(url);
-      final request = http.Request('GET', uri)
-        ..headers.addAll({
-          'User-Agent':
-              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-          'Accept': '*/*',
-        });
-
-      _httpFallbackClient!.send(request).then((response) {
-        if (response.statusCode == 200) {
-          final file = File(targetPath);
-          _httpFallbackSink = file.openWrite();
-          _httpStreamSub = response.stream.listen(
-            (chunk) {
-              _httpFallbackSink?.add(chunk);
-              _recordingFileSize += chunk.length;
-            },
-            onError: (err) {
-              debugPrint('[RecordingService] HTTP fallback error: $err');
-            },
-          );
-        }
-      }).catchError((err) {
-        debugPrint('[RecordingService] HTTP fallback request error: $err');
-      });
-    } catch (e) {
-      debugPrint('[RecordingService] HTTP fallback init error: $e');
-    }
-  }
-
-  Future<Recording?> stopRecording({required Player player}) async {
+  Future<Recording?> stopRecording({Player? player}) async {
     if (!_isRecording) return null;
 
     final targetPath = _currentRecordingPath;
@@ -200,15 +188,32 @@ class RecordingService extends ChangeNotifier {
     final startTime = _recordingStartTime ?? DateTime.now();
     final durationSecs = _recordingDuration.inSeconds;
 
-    // Stop MPV stream-record
-    try {
-      await (player.platform as dynamic).setProperty('stream-record', '');
-    } catch (e) {
-      debugPrint('[RecordingService] stop MPV error: $e');
+    // 1. Gracefully terminate FFmpeg if active
+    if (_ffmpegProcess != null) {
+      try {
+        _ffmpegProcess!.stdin.writeln('q');
+        await _ffmpegProcess!.stdin.flush().catchError((_) {});
+        await _ffmpegProcess!.exitCode.timeout(
+          const Duration(milliseconds: 1500),
+          onTimeout: () {
+            _ffmpegProcess?.kill(ProcessSignal.sigterm);
+            return 0;
+          },
+        );
+      } catch (e) {
+        debugPrint('[RecordingService] Error stopping FFmpeg: $e');
+        try {
+          _ffmpegProcess?.kill();
+        } catch (_) {}
+      }
+      _ffmpegProcess = null;
     }
 
-    // Stop HTTP Fallback if active
-    await _stopHttpFallback();
+    // 2. Stop Dart Recorder if active
+    if (_dartRecorder != null) {
+      await _dartRecorder!.stop();
+      _dartRecorder = null;
+    }
 
     _cleanupTimers();
     _isRecording = false;
@@ -216,13 +221,14 @@ class RecordingService extends ChangeNotifier {
     _currentRecordingPath = null;
     _recordingStartTime = null;
 
-    // Small delay for OS disk flush
-    await Future.delayed(const Duration(milliseconds: 300));
+    // Allow OS to flush buffers to disk
+    await Future.delayed(const Duration(milliseconds: 400));
 
     Recording? savedRecording;
     if (targetPath != null && channel != null) {
       final f = File(targetPath);
-      if (f.existsSync() && f.lengthSync() > 0) {
+      // Ensure file exists and has actual media data (> 1 KB)
+      if (f.existsSync() && f.lengthSync() > 1024) {
         final fileSize = f.lengthSync();
         savedRecording = Recording(
           id: 'rec_${DateTime.now().millisecondsSinceEpoch}',
@@ -237,7 +243,6 @@ class RecordingService extends ChangeNotifier {
         _recordings.insert(0, savedRecording);
         await _persistRecordings();
       } else if (f.existsSync()) {
-        // Remove empty 0-byte file
         try {
           f.deleteSync();
         } catch (_) {}
@@ -246,16 +251,6 @@ class RecordingService extends ChangeNotifier {
 
     notifyListeners();
     return savedRecording;
-  }
-
-  Future<void> _stopHttpFallback() async {
-    await _httpStreamSub?.cancel();
-    _httpStreamSub = null;
-    await _httpFallbackSink?.flush();
-    await _httpFallbackSink?.close();
-    _httpFallbackSink = null;
-    _httpFallbackClient?.close();
-    _httpFallbackClient = null;
   }
 
   void _cleanupTimers() {
@@ -302,7 +297,148 @@ class RecordingService extends ChangeNotifier {
   @override
   void dispose() {
     _cleanupTimers();
-    _stopHttpFallback();
+    if (_ffmpegProcess != null) {
+      try {
+        _ffmpegProcess?.stdin.writeln('q');
+        _ffmpegProcess?.kill();
+      } catch (_) {}
+    }
+    _dartRecorder?.stop();
     super.dispose();
   }
 }
+
+/// Fallback pure-Dart stream recorder for HLS (.m3u8) and direct HTTP transport streams.
+/// Used on mobile/Android/iOS or when FFmpeg is not installed.
+class _DartHlsStreamRecorder {
+  final String url;
+  final String targetPath;
+  bool _isCancelled = false;
+  http.Client? _client;
+  IOSink? _sink;
+  Timer? _hlsPollTimer;
+  final Set<String> _seenSegments = {};
+
+  _DartHlsStreamRecorder({required this.url, required this.targetPath});
+
+  Future<void> start() async {
+    _client = http.Client();
+    final file = File(targetPath);
+    _sink = file.openWrite(mode: FileMode.writeOnlyAppend);
+
+    try {
+      final initialUri = Uri.parse(url);
+      final req = http.Request('GET', initialUri)
+        ..headers.addAll({
+          'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+          'Accept': '*/*',
+        });
+
+      final response = await _client!.send(req);
+      final contentType = response.headers['content-type']?.toLowerCase() ?? '';
+
+      if (contentType.contains('mpegurl') || url.contains('.m3u8') || url.contains('.m3u')) {
+        final bodyBytes = await response.stream.toBytes();
+        final body = utf8.decode(bodyBytes, allowMalformed: true);
+        await _handleHls(initialUri, body);
+      } else {
+        response.stream.listen(
+          (chunk) {
+            if (!_isCancelled) {
+              _sink?.add(chunk);
+            }
+          },
+          onError: (e) {
+            debugPrint('[_DartHlsStreamRecorder] direct stream error: $e');
+          },
+        );
+      }
+    } catch (e) {
+      debugPrint('[_DartHlsStreamRecorder] start error: $e');
+    }
+  }
+
+  Future<void> _handleHls(Uri playlistUri, String content) async {
+    Uri mediaPlaylistUri = playlistUri;
+    if (content.contains('#EXT-X-STREAM-INF')) {
+      final lines = content.split('\n');
+      for (int i = 0; i < lines.length; i++) {
+        final line = lines[i].trim();
+        if (line.startsWith('#EXT-X-STREAM-INF') && i + 1 < lines.length) {
+          final nextLine = lines[i + 1].trim();
+          if (nextLine.isNotEmpty && !nextLine.startsWith('#')) {
+            mediaPlaylistUri = playlistUri.resolve(nextLine);
+            break;
+          }
+        }
+      }
+    }
+
+    await _pollMediaPlaylist(mediaPlaylistUri);
+    _hlsPollTimer = Timer.periodic(const Duration(milliseconds: 2500), (_) {
+      if (!_isCancelled) {
+        _pollMediaPlaylist(mediaPlaylistUri);
+      }
+    });
+  }
+
+  Future<void> _pollMediaPlaylist(Uri mediaUri) async {
+    if (_isCancelled || _client == null) return;
+    try {
+      final resp = await _client!.get(
+        mediaUri,
+        headers: {
+          'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        },
+      ).timeout(const Duration(seconds: 4));
+
+      if (resp.statusCode == 200) {
+        final lines = resp.body.split('\n');
+        for (int i = 0; i < lines.length; i++) {
+          final line = lines[i].trim();
+          if (line.startsWith('#EXTINF') && i + 1 < lines.length) {
+            final segLine = lines[i + 1].trim();
+            if (segLine.isNotEmpty && !segLine.startsWith('#')) {
+              if (!_seenSegments.contains(segLine)) {
+                _seenSegments.add(segLine);
+                final segUri = mediaUri.resolve(segLine);
+                _downloadAndAppendSegment(segUri);
+              }
+            }
+          }
+        }
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _downloadAndAppendSegment(Uri segUri) async {
+    if (_isCancelled || _client == null) return;
+    try {
+      final segResp = await _client!.get(
+        segUri,
+        headers: {
+          'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        },
+      ).timeout(const Duration(seconds: 8));
+
+      if (segResp.statusCode == 200 && !_isCancelled) {
+        _sink?.add(segResp.bodyBytes);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> stop() async {
+    _isCancelled = true;
+    _hlsPollTimer?.cancel();
+    _hlsPollTimer = null;
+    await _sink?.flush().catchError((_) {});
+    await _sink?.close().catchError((_) {});
+    _sink = null;
+    _client?.close();
+    _client = null;
+  }
+}
+

@@ -12,6 +12,7 @@ class RecordingsDialog extends StatelessWidget {
     final recordings = controller.recordings;
 
     return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       backgroundColor: const Color(0xFF0F1016),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
@@ -20,7 +21,7 @@ class RecordingsDialog extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 620, maxHeight: 580),
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(18),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

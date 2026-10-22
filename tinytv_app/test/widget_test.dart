@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tinytv_app/models/channel.dart';
 import 'package:tinytv_app/models/recording.dart';
+import 'package:tinytv_app/services/recording_service.dart';
 import 'package:tinytv_app/services/storage_service.dart';
 
 void main() {
@@ -67,4 +68,17 @@ void main() {
     expect(list.length, 1);
     expect(list.first['channelName'], 'CNN');
   });
+
+  test('RecordingService initial state is clean and idle', () async {
+    final prefs = await SharedPreferences.getInstance();
+    final storage = StorageService(prefs);
+    final recordingService = RecordingService(storage);
+
+    expect(recordingService.isRecording, false);
+    expect(recordingService.recordingDuration, Duration.zero);
+    expect(recordingService.recordingFileSize, 0);
+    expect(recordingService.recordingChannel, null);
+    expect(recordingService.currentRecordingPath, null);
+  });
 }
+

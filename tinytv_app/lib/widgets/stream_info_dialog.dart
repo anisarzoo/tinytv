@@ -19,6 +19,7 @@ class StreamInfoDialog extends StatelessWidget {
         : 'Auto / Unknown';
 
     return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       backgroundColor: const Color(0xFF0F1016),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),

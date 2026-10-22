@@ -27,6 +27,7 @@ class _SourceSelectorDialogState extends State<SourceSelectorDialog> {
     final controller = context.watch<TvController>();
 
     return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       backgroundColor: const Color(0xFF0F1017),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
